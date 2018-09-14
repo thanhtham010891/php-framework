@@ -1,0 +1,10 @@
+.idea
+
+/docker/logs/*.log
+/docker/mysql
+
+src/vendor
+src/public/storage
+src/public/build
+src/composer.lock
+src/config.php

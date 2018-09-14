@@ -1,0 +1,23 @@
+version: '3'
+services:
+  mysql.local:
+   image: mysql:5.7
+   ports:
+     - 3306:3306
+   environment:
+       - MYSQL_ROOT_PASSWORD=root
+   volumes:
+     - ./docker/mysql:/var/lib/mysql
+
+  web.local:
+   build: .
+   hostname: thamtt.local
+   volumes:
+     - ./src:/var/www/html
+     - ./docker/logs:/var/log/apache2
+     - ./docker/hosts:/etc/apache2/sites-enabled
+   ports:
+     - 80:80
+     - 443:443
+   links:
+     - mysql.local
