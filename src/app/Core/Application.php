@@ -2,12 +2,12 @@
 
 namespace App\Core;
 
-use App\Core\Contract\RouteInterface;
+use App\Core\Contract\Controllers\DispatchInterface;
 use App\Core\Contract\ServiceInterface;
-use App\Core\Contract\SessionInterface;
-use App\Core\Contract\ViewInterface;
+use App\Core\Contract\RouteInterface;
 use App\Core\Contract\RequestInterface;
 use App\Core\Contract\ResponseInterface;
+use App\Core\Contract\SessionInterface;
 
 use App\Exceptions\ApplicationException;
 
@@ -50,19 +50,6 @@ class Application
         'base_dir' => '/var/www/html',
 
         /**
-         * Model settings resources
-         */
-        'models' => [
-            'connection' => [
-                'hostname' => 'localhost',
-                'username' => 'root',
-                'password' => 'root',
-                'db_name' => 'db_name',
-                'options' => []
-            ]
-        ],
-
-        /**
          * Providers settings resources
          */
         'providers' => [
@@ -75,7 +62,7 @@ class Application
      * Application services
      * Initialize service contract
      *
-     * @var array
+     * @var ServiceRepository
      */
     private $services = [];
 
@@ -89,46 +76,25 @@ class Application
      */
     public function getAllService()
     {
-        return $this->services;
+        return $this->services->toArray();
     }
 
     /**
      * @param string $contract
      * @return mixed
-     * @throws ApplicationException
      */
     public function getService($contract)
     {
-        if (empty($this->services[$contract])) {
-            throw new ApplicationException('Services "' . $contract . '" is not registered');
-        }
-
         return $this->services[$contract];
     }
 
     /**
      * @param string $contract
      * @param mixed $service
-     *
-     * @throws ApplicationException
      */
     public function setService($contract, $service)
     {
-        if (!interface_exists($contract)) {
-            throw new ApplicationException('Interface "' . $contract . '" does not exist');
-        }
-
-        if (is_callable($service)) {
-            $service = $service($this->settings);
-        }
-
-        if ($service instanceof $contract) {
-            $this->services[$contract] = $service;
-        } else {
-            throw new ApplicationException(
-                'Services "' . get_class($service) . '" must be implemented by ' . $this->services[$contract]
-            );
-        }
+        $this->services[$contract] = $service;
     }
 
     /**
@@ -163,6 +129,13 @@ class Application
         return $this->settings['__MAIN__'];
     }
 
+    public function isDevelop()
+    {
+        return in_array(
+            strtolower($this->settings['development']), [true, 'true', 1, '1', 'develop', 'development', 'dev', 'local']
+        );
+    }
+
     /**
      * Application constructor.
      * @param array $settings
@@ -175,6 +148,8 @@ class Application
              */
             $this->settings($settings);
         }
+
+        $this->services = new ServiceRepository($this->settings);
     }
 
     /**
@@ -182,7 +157,7 @@ class Application
      */
     public function run()
     {
-        if ($this->settings['development']) {
+        if ($this->isDevelop()) {
             ini_set('display_errors', true);
             ini_set('error_reporting', E_ALL);
         }
@@ -191,45 +166,33 @@ class Application
 
         $this->_registerExternalService();
 
-        /**
-         * Bootstrap services
-         */
-        foreach ($this->getAllService() as $service) {
+        $controllerResources = $this->_getControllerResource(
+            $this->getService(RouteInterface::class), $this->getService(RequestInterface::class)
+        );
+
+        if (!empty($controllerResources)) {
+
+            $controllerObject = new $controllerResources['controller'];
+
             /**
-             * @var ServiceInterface $service
+             * Bootstrap controller
              */
-            if ($service instanceof ServiceInterface) {
-                $service->bootstrap();
+            if ($controllerObject instanceof DispatchInterface) {
+                $controllerObject->dispatch($this->services);
             }
+
+            /**
+             * Controller is running
+             */
+            call_user_func_array(
+                [$controllerObject, $controllerResources['method']], $controllerResources['args']
+            );
+
+            unset($controllerObject, $controllerResources);
         }
 
         /**
-         * @var RequestInterface $request
-         * @var ResponseInterface $response
-         * @var ViewInterface $view
-         * @var RouteInterface $view
-         */
-        $request = $this->getService(RequestInterface::class);
-        $response = $this->getService(ResponseInterface::class);
-        $route = $this->getService(RouteInterface::class);
-        $view = $this->getService(ViewInterface::class);
-
-        $controllerResource = $this->_getControllerResource($route, $request);
-
-        $view->setResponse($this->getService(ResponseInterface::class));
-
-        if (!empty($controllerResource)) {
-
-            $view->setResource(call_user_func_array(
-                [new $controllerResource['controller'], $controllerResource['method']],
-                [$request, $response, $controllerResource['args']]
-            ));
-        }
-
-        $view->run();
-
-        /**
-         * Terminate services
+         * Terminate all service
          */
         foreach ($this->getAllService() as $service) {
             /**
@@ -314,8 +277,6 @@ class Application
 
     /**
      * Register system core services
-     *
-     * @throws ApplicationException
      */
     private function _registerBaseServices()
     {
@@ -334,12 +295,9 @@ class Application
 
     /**
      * Register external services
-     *
-     * @throws ApplicationException
      */
     private function _registerExternalService()
     {
-
         foreach (require_once($this->getProviderPath() . 'bootstrap.php') as $provider) {
 
             if (empty($provider['status'])) {
@@ -347,8 +305,7 @@ class Application
             }
 
             if (file_exists($provider['settings'])) {
-
-                $this->settings(require_once($provider['settings']));
+                $this->services->settings(require_once($provider['settings']));
             }
 
             if (file_exists($provider['services'])) {

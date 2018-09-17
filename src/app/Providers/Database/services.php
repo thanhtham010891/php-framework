@@ -6,6 +6,6 @@ use App\Providers\Database\PDOConnection;
 return [
 
     \App\Core\Contract\Database\DatabaseInterface::class => function ($settings) {
-        return new Database(new PDOConnection($settings['db']));
+        return new Database(new PDOConnection($settings['models']['connection']));
     }
 ];

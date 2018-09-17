@@ -10,6 +10,7 @@ interface ResponseInterface extends ServiceInterface
      * @param string $content
      * @param int $status
      * @param array $headers
+     * @return ResponseInterface
      */
     public function prepare($content = '', $status = 200, array $headers = array());
 

@@ -2,26 +2,13 @@
 
 namespace App\Controllers\src;
 
-use App\Core\Contract\RequestInterface;
-use App\Core\Contract\ResponseInterface;
+use App\Controllers\Dispatch;
 
-class IndexController
+class IndexController extends Dispatch
 {
 
-    /**
-     * @param RequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    public function index(RequestInterface $request, ResponseInterface $response)
+    public function index()
     {
-        return $response->prepare(json_encode([
-            'status' => true,
-            'message' => 'Hello world',
-            'version' => '1.0',
-            'author' => 'thamtt@nal.vn'
-        ]), 200, [
-            'Content-type' => 'application/json'
-        ]);
+        echo 'Hello world';
     }
 }
