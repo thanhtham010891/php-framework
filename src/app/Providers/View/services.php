@@ -3,7 +3,7 @@
 
 return [
 
-    \App\Core\Contract\ViewInterface::class => function ($settings) {
-        return new App\Providers\View\View($settings);
+    \App\Core\Contract\ViewManagerInterface::class => function ($settings) {
+        return new App\Providers\View\Manager($settings['views']);
     }
 ];

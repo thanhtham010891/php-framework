@@ -2,7 +2,8 @@
 
 namespace App\Providers\Route;
 
-use App\Controllers\src\IndexController;
+use App\Controllers\Api\V1;
+use App\Controllers\IndexController;
 use App\Core\Contract\RouteInterface;
 
 class Route implements RouteInterface
@@ -14,8 +15,8 @@ class Route implements RouteInterface
             '/' => [
                 'controller' => IndexController::class, 'method' => 'index', 'args' => []
             ],
-            '/post/([0-9]+)?' => [
-                'controller' => IndexController::class, 'method' => 'index'
+            '/api/v1' => [
+                'controller' => V1::class, 'method' => 'index'
             ]
         ];
     }

@@ -1,35 +1,17 @@
 <?php
 
-$dir = dirname(__FILE__);
-$ds = DIRECTORY_SEPARATOR;
-
 return [
 
     [
         'name' => 'Route providers',
         'status' => true,
-        'settings' => $dir . $ds . 'Route' . $ds . 'settings.php',
-        'services' => $dir . $ds . 'Route' . $ds . 'services.php',
+        'settings' => $this->getProviderPath() . 'Route/settings.php',
+        'services' => $this->getProviderPath() . 'Route/services.php',
     ],
-
-    [
-        'name' => 'Database providers',
-        'status' => true,
-        'settings' => $dir . $ds . 'Database' . $ds . 'settings.php',
-        'services' => $dir . $ds . 'Database' . $ds . 'services.php',
-    ],
-
     [
         'name' => 'View providers',
         'status' => true,
-        'settings' => $dir . $ds . 'View' . $ds . 'settings.php',
-        'services' => $dir . $ds . 'View' . $ds . 'services.php',
-    ],
-
-    [
-        'name' => 'Check heath for players',
-        'status' => true,
-        'settings' => $dir . $ds . 'HealthMate' . $ds . 'settings.php',
-        'services' => $dir . $ds . 'HealthMate' . $ds . 'services.php',
-    ],
+        'settings' => $this->getProviderPath() . 'View/settings.php',
+        'services' => $this->getProviderPath() . 'View/services.php',
+    ]
 ];
