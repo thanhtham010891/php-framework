@@ -2,7 +2,9 @@
 
 namespace App\Core;
 
+use App\Core\Contract\Controllers\ApiInterface;
 use App\Core\Contract\Controllers\DispatchInterface;
+use App\Core\Contract\Controllers\WebInterface;
 use App\Core\Contract\ServiceInterface;
 use App\Core\Contract\RouteInterface;
 use App\Core\Contract\RequestInterface;
@@ -54,6 +56,13 @@ class Application
          */
         'providers' => [
             'path' => '/app/Providers'
+        ],
+
+        /**
+         * Providers resource settings
+         */
+        'storage' => [
+            'path' => 'storage'
         ]
 
     ];
@@ -121,6 +130,11 @@ class Application
         return $this->getBaseDir() . rtrim($this->settings['providers']['path'], self::DS) . self::DS;
     }
 
+    public function getStoragePath()
+    {
+        return $this->getBaseDir() . rtrim($this->settings['storage']['path'], self::DS) . self::DS;
+    }
+
     /**
      * @return string
      */
@@ -184,11 +198,20 @@ class Application
             /**
              * Controller is running
              */
-            call_user_func_array(
+            $responseData = call_user_func_array(
                 [$controllerObject, $controllerResources['method']], $controllerResources['args']
             );
 
+            if ($controllerObject instanceof WebInterface) {
+                $controllerObject->render($responseData);
+            } elseif ($controllerObject instanceof ApiInterface) {
+                $controllerObject->send();
+            }
+
             unset($controllerObject, $controllerResources);
+
+        } else {
+            throw new ApplicationException('Controller resource is not registered');
         }
 
         /**

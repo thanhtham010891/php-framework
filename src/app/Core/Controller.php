@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Core;
 
 use App\Core\Contract\Controllers\DispatchInterface;
-use App\Core\ServiceRepository;
 
-abstract class Dispatch implements DispatchInterface
+abstract class Controller implements DispatchInterface
 {
     protected $services;
 
