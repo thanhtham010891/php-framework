@@ -17,7 +17,7 @@ class Manager implements ViewManagerInterface
      */
     public function getViewPath()
     {
-        return $this->settings['path'];
+        return rtrim($this->settings['path'], '/') . '/';
     }
 
     public function getCacheStatus()
@@ -27,7 +27,7 @@ class Manager implements ViewManagerInterface
 
     public function getCachePath()
     {
-        return $this->settings['cache']['path'];
+        return rtrim($this->settings['cache']['path'], '/');
     }
 
     public function __construct(array $settings)

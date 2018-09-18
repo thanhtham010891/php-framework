@@ -5,13 +5,13 @@ return [
     [
         'name' => 'Route providers',
         'status' => true,
-        'settings' => $this->getProviderPath() . 'Route/settings.php',
-        'services' => $this->getProviderPath() . 'Route/services.php',
+        'settings' => provider_path() . 'Route/settings.php',
+        'services' => provider_path() . 'Route/services.php',
     ],
     [
         'name' => 'View providers',
         'status' => true,
-        'settings' => $this->getProviderPath() . 'View/settings.php',
-        'services' => $this->getProviderPath() . 'View/services.php',
+        'settings' => provider_path() . 'View/settings.php',
+        'services' => provider_path() . 'View/services.php',
     ]
 ];
