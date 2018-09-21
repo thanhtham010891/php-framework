@@ -227,6 +227,16 @@ class Application
         $this->_terminateAllService();
     }
 
+    public function errors(ApplicationException $e)
+    {
+        if ($this->isDevelopMode()) {
+            echo 'Errors: ' . $e->getMessage();
+            echo '<pre>', $e->getTraceAsString(), '</pre>';
+        } else {
+            echo 'Errors!';
+        }
+    }
+
     /**
      * @param Application $app
      * @return Application

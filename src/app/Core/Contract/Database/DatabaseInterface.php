@@ -22,7 +22,7 @@ interface DatabaseInterface extends ServiceInterface
      * @param string $fetchClass
      * @return Object
      */
-    public function fetch($sql, array $params = [], $fetchClass = "");
+    public function fetchOne($sql, array $params = [], $fetchClass = "");
 
     /**
      * @param string $sql

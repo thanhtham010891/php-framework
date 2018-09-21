@@ -6,10 +6,10 @@ return [
      */
     'models' => [
         'connection' => [
-            'hostname' => 'localhost',
+            'hostname' => 'mysql.local',
             'username' => 'root',
             'password' => 'root',
-            'db_name' => 'db_name',
+            'db_name' => 'test',
             'options' => []
         ]
     ],

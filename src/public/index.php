@@ -21,10 +21,5 @@ try {
     )->run();
 
 } catch (ApplicationException $e) {
-
-    if (Application::instance()->isDevelopMode()) {
-        echo $e->getMessage();
-    } else {
-        echo 'Error!';
-    }
+    Application::instance()->errors($e);
 }

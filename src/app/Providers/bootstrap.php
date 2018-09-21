@@ -13,5 +13,12 @@ return [
         'status' => true,
         'settings' => provider_path() . 'View/settings.php',
         'services' => provider_path() . 'View/services.php',
+    ],
+
+    [
+        'name' => 'Database providers',
+        'status' => true,
+        'settings' => provider_path() . 'Database/settings.php',
+        'services' => provider_path() . 'Database/services.php',
     ]
 ];

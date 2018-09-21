@@ -9,7 +9,7 @@ interface ConnectionInterface
     /**
      * @return void
      */
-    public function initConnect();
+    public function openConnect();
 
     /**
      * @return void
@@ -28,7 +28,7 @@ interface ConnectionInterface
      * @param array $fetchClassArgs
      * @return mixed
      */
-    public function fetch($sql, array $params = [], $fetchClass = "", $fetchClassArgs = []);
+    public function fetchOne($sql, array $params = [], $fetchClass = "", $fetchClassArgs = []);
 
     /**
      * @param string $sql

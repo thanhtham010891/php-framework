@@ -2,14 +2,12 @@
 
 namespace App\Providers\View\Type;
 
-use App\Core\Contract\Controllers\WebInterface;
 use App\Core\Contract\ViewManagerInterface;
-use App\Core\Controller;
 use App\Exceptions\ApplicationException;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
-class Web extends Controller implements WebInterface
+trait WebTrait
 {
 
     /**
@@ -34,12 +32,12 @@ class Web extends Controller implements WebInterface
             $args['data'] = [];
         }
 
-        echo $this->getTwig()->render(
+        echo $this->_getTwig()->render(
             $args['render'], $args['data']
         );
     }
 
-    public function getTwig()
+    private function _getTwig()
     {
         if (empty($this->twig)) {
 

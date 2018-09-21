@@ -3,10 +3,8 @@
 namespace App\Providers\View\Type;
 
 use App\Core\Contract\ResponseInterface;
-use App\Core\Controller;
-use App\Core\Contract\Controllers\ApiInterface;
 
-class Api extends Controller implements ApiInterface
+trait ApiTrait
 {
 
     /**

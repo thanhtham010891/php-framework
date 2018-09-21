@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Providers\Database;
+namespace App\Providers\Database\Connection;
 
 use App\Core\Contract\Database\ConnectionInterface;
 use App\Exceptions\ApplicationException;
 use PDO;
+use PDOException;
 
 class PDOConnection implements ConnectionInterface
 {
@@ -20,7 +21,10 @@ class PDOConnection implements ConnectionInterface
         $this->settings = $settings;
     }
 
-    public function initConnect()
+    /**
+     * @throws ApplicationException
+     */
+    public function openConnect()
     {
         if (empty($this->connection)) {
             if (!empty($this->settings['charset'])) {
@@ -31,10 +35,16 @@ class PDOConnection implements ConnectionInterface
 
             $this->settings = array_replace($this->settings, [PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING]);
 
-            $this->connection = new PDO(
-                'mysql:host=' . $this->settings['hostname'] . ';dbname=' . $this->settings['db_name'] . ';' . $charset,
-                $this->settings['username'], $this->settings['password'], $this->settings['options']
-            );
+            try {
+
+                $this->connection = new PDO(
+                    'mysql:host=' . $this->settings['hostname'] . ';dbname=' . $this->settings['db_name'] . ';' . $charset,
+                    $this->settings['username'], $this->settings['password'], $this->settings['options']
+                );
+
+            } catch (PDOException $e) {
+                throw new ApplicationException($e->getMessage());
+            }
         }
     }
 
@@ -66,7 +76,7 @@ class PDOConnection implements ConnectionInterface
      * @return mixed
      * @throws ApplicationException
      */
-    public function fetch($sql, array $params = [], $fetchClass = "", $fetchClassArgs = [])
+    public function fetchOne($sql, array $params = [], $fetchClass = "", $fetchClassArgs = [])
     {
         $stmt = $this->execute($sql, $params);
 

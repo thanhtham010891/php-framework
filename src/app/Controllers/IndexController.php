@@ -2,10 +2,15 @@
 
 namespace App\Controllers;
 
-use App\Providers\View\Type\Web;
+use App\Core\Controller;
+use App\Core\Contract\Controllers\WebInterface;
 
-class IndexController extends Web
+use App\Providers\View\Type\WebTrait;
+
+class IndexController extends Controller implements WebInterface
 {
+    use WebTrait;
+
     public function index()
     {
         return [

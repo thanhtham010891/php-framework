@@ -1,11 +1,23 @@
 <?php
 
 use App\Providers\Database\Database;
-use App\Providers\Database\PDOConnection;
+use App\Core\Contract\Database\DatabaseInterface;
+
+use App\Providers\Database\Connection\PDOConnection;
+
+use App\Core\Contract\Database\QueryBuilderInterface;
+use App\Providers\Database\Builder\MysqlQueryBuilder;
 
 return [
 
-    \App\Core\Contract\Database\DatabaseInterface::class => function ($settings) {
+    DatabaseInterface::class => function ($settings) {
         return new Database(new PDOConnection($settings['models']['connection']));
+    },
+
+    /**
+     * Support for Mysql now...
+     */
+    QueryBuilderInterface::class => function () {
+        return new MysqlQueryBuilder();
     }
 ];
