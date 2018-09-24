@@ -316,6 +316,30 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     }
 
     /**
+     * @param QueryBuilderInterface|string $table
+     * @param QueryBuilderInterface $conditions
+     * @return $this|QueryBuilderInterface
+     */
+    public function leftJoin($table, QueryBuilderInterface $conditions)
+    {
+        $this->_queryJoins($table, $conditions, 'LEFT');
+
+        return $this;
+    }
+
+    /**
+     * @param QueryBuilderInterface|string $table
+     * @param QueryBuilderInterface $conditions
+     * @return $this|QueryBuilderInterface
+     */
+    public function rightJoin($table, QueryBuilderInterface $conditions)
+    {
+        $this->_queryJoins($table, $conditions, 'RIGHT');
+
+        return $this;
+    }
+
+    /**
      * @param $limit
      * @param int $offset
      * @return $this|QueryBuilderInterface

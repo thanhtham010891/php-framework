@@ -9,6 +9,11 @@ use PDOException;
 
 class PDOConnection implements ConnectionInterface
 {
+    /**
+     * Connection settings
+     *
+     * @var array
+     */
     private $settings;
 
     /**
@@ -67,6 +72,10 @@ class PDOConnection implements ConnectionInterface
         return $this->connection;
     }
 
+    public function getDatabaseName()
+    {
+        return trim($this->settings['db_name'], '`');
+    }
 
     /**
      * @param string $sql

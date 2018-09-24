@@ -35,6 +35,15 @@ class Database implements DatabaseInterface
         return $this->connection;
     }
 
+    /**
+     * @return string
+     * @throws ApplicationException
+     */
+    public function getDatabaseName()
+    {
+        return $this->getConnection()->getDatabaseName();
+    }
+
     public function __construct(ConnectionInterface $connection)
     {
         $this->setConnection($connection);

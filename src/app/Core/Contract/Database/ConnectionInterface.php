@@ -22,6 +22,11 @@ interface ConnectionInterface
     public function getResource();
 
     /**
+     * @return string
+     */
+    public function getDatabaseName();
+
+    /**
      * @param string $sql
      * @param array $params
      * @param string $fetchClass

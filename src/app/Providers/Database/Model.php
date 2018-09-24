@@ -5,28 +5,42 @@ namespace App\Providers\Database;
 use App\Core\Contract\Database\QueryBuilderInterface;
 use App\Core\Contract\Database\ModelInterface;
 use App\Core\Contract\Database\DatabaseInterface;
+use App\Exceptions\ApplicationException;
 
 abstract class Model implements ModelInterface
 {
     /**
+     * Table identity
+     *
+     * @var array
+     */
+    protected $identity = [
+
+        /**
+         * Table name
+         */
+        'table' => '__NONE__',
+
+        /**
+         * Primary key of table
+         */
+        'primaryKey' => 'id',
+
+        /**
+         * Set acceptance fill for create or update
+         */
+        'columns' => []
+    ];
+
+    /**
      * @var DatabaseInterface
      */
-    private $database;
+    private $_database;
 
     /**
      * @var QueryBuilderInterface
      */
-    private $builder;
-
-    /**
-     * @var string
-     */
-    protected $table = '__NONE__';
-
-    /**
-     * @var string
-     */
-    protected $primaryKey = 'id';
+    private $_builder;
 
     /**
      * @param DatabaseInterface $database
@@ -34,23 +48,137 @@ abstract class Model implements ModelInterface
      */
     final public function bootstrap(DatabaseInterface $database, QueryBuilderInterface $builder)
     {
-        $this->database = $database;
+        $this->_database = $database;
 
-        $this->builder = $builder;
+        $this->_builder = $builder;
 
-        $this->builder->clearQueryResource();
+        $this->_builder->clearQueryResource();
+
+        $this->_builder->table($this->getTable());
+    }
+
+    /**
+     * @return DatabaseInterface
+     */
+    final public function getDatabase()
+    {
+        return $this->_database;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTable()
+    {
+        return trim($this->identity['table'], '`');
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrimaryKey()
+    {
+        return trim($this->identity['primaryKey'], '`');
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return $this->identity['columns'];
     }
 
     /**
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder()
+    final public function getQueryBuilder()
     {
-        $builder = clone $this->builder;
+        return $this->_builder;
+    }
+
+    /**
+     * @return QueryBuilderInterface
+     */
+    final public function getNewQueryBuilder()
+    {
+        $builder = clone $this->getQueryBuilder();
 
         $builder->clearQueryResource();
 
         return $builder;
+    }
+
+    /**
+     * @param array $data
+     * @return bool
+     * @throws ApplicationException
+     */
+    public function create(array $data)
+    {
+        list($fields, $values, $alias) = $this->_parseFieldsValue($data);
+
+        return $this->getDatabase()->execute(
+            $this->getQueryBuilder()->buildQueryCreate($fields, $alias), $values
+        );
+    }
+
+    /**
+     * @param array $data
+     * @return bool
+     * @throws ApplicationException
+     */
+    public function update(array $data)
+    {
+        list($fields, $values, $alias) = $this->_parseFieldsValue($data);
+
+        return $this->getDatabase()->execute(
+            $this->getQueryBuilder()->buildQueryUpdate($fields, $alias), $values
+        );
+    }
+
+    /**
+     * If Query builder have no condition -> delete will be same at truncate method
+     *
+     * @return bool
+     */
+    public function delete()
+    {
+        return $this->getDatabase()->execute(
+            $this->getQueryBuilder()->buildQueryDelete()
+        );
+    }
+
+    /**
+     * @return bool
+     */
+    public function truncate()
+    {
+        return $this->getDatabase()->execute(
+            $this->getQueryBuilder()->buildQueryTruncate()
+        );
+    }
+
+    /**
+     * @param array $args
+     * @return Object
+     */
+    public function fetchOne(array $args = [])
+    {
+        return $this->getDatabase()->fetchOne(
+            $this->getQueryBuilder()->buildExecuteNoneQuery(), $args, get_class($this)
+        );
+    }
+
+    /**
+     * @param array $args
+     * @return array
+     */
+    public function fetchAll(array $args = [])
+    {
+        return $this->getDatabase()->fetchAll(
+            $this->getQueryBuilder()->buildExecuteNoneQuery(), $args, get_class($this)
+        );
     }
 
     /**
@@ -59,36 +187,35 @@ abstract class Model implements ModelInterface
      */
     public function findById($id)
     {
-        return $this->fetchOne(
-            $this->getQueryBuilder()->whereEqual($this->primaryKey, '?'), [$id]
-        );
+        $this->getQueryBuilder()->whereEqual($this->getPrimaryKey(), '?');
+
+        return $this->fetchOne([$id]);
     }
 
     /**
-     * @param QueryBuilderInterface $builder
-     * @param array $args
-     * @return Object
-     */
-    public function fetchOne(QueryBuilderInterface $builder, $args = [])
-    {
-        $builder->table($this->table);
-
-        return $this->database->fetchOne(
-            $builder->buildExecuteNoneQuery(), $args, get_class($this)
-        );
-    }
-
-    /**
-     * @param QueryBuilderInterface $builder
-     * @param array $args
+     * @param array $data
      * @return array
+     * @throws ApplicationException
      */
-    public function fetchAll(QueryBuilderInterface $builder, $args = [])
+    private function _parseFieldsValue(array $data)
     {
-        $builder->table($this->table);
+        $fields = $values = $alias = [];
 
-        return $this->database->fetchAll(
-            $builder->buildExecuteNoneQuery(), $args, get_class($this)
-        );
+        foreach ($data as $key => $item) {
+
+            if (in_array($key, $this->getColumns())) {
+                array_push($fields, $key);
+                array_push($alias, '?');
+                array_push($values, $item);
+            }
+        }
+
+        if (empty($fields)) {
+            throw new ApplicationException(
+                'Database > model: table[' . $this->getTable() . '] have no columns for update or create'
+            );
+        }
+
+        return [$fields, $values, $alias];
     }
 }

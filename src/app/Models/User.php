@@ -6,7 +6,13 @@ use App\Providers\Database\Model;
 
 class User extends Model
 {
-    protected $table = 'users';
+    protected $identity = [
+        'table' => 'users',
+        'primaryKey' => 'id',
+        'columns' => [
+            'id', 'email', 'status'
+        ]
+    ];
 
     /**
      * @var int

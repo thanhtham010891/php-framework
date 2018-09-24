@@ -5,7 +5,7 @@ namespace App\Core\Contract\Database;
 interface ModelInterface
 {
     /**
-     * Set database connection, $this->database should be private for restrict model directory access to connection
+     * Set database connection, QueryBuilder
      *
      * @param DatabaseInterface $database
      * @param QueryBuilderInterface $builder
@@ -14,8 +14,33 @@ interface ModelInterface
     public function bootstrap(DatabaseInterface $database, QueryBuilderInterface $builder);
 
     /**
+     * @return DatabaseInterface
+     */
+    public function getDatabase();
+
+    /**
+     * @return string
+     */
+    public function getTable();
+
+    /**
+     * @return string
+     */
+    public function getPrimaryKey();
+
+    /**
+     * @return array
+     */
+    public function getColumns();
+
+    /**
      * This function will clone to new QueryBuilder
      *
+     * @return QueryBuilderInterface
+     */
+    public function getNewQueryBuilder();
+
+    /**
      * @return QueryBuilderInterface
      */
     public function getQueryBuilder();
@@ -29,20 +54,40 @@ interface ModelInterface
     public function findById($id);
 
     /**
+     * @param array $data
+     * @return bool
+     */
+    public function create(array $data);
+
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public function update(array $data);
+
+    /**
+     * @return bool
+     */
+    public function delete();
+
+    /**
+     * @return bool
+     */
+    public function truncate();
+
+    /**
      * Get one item
      *
-     * @param QueryBuilderInterface $builder
      * @param array $args
      * @return mixed
      */
-    public function fetchOne(QueryBuilderInterface $builder, $args = []);
+    public function fetchOne(array $args = []);
 
     /**
      * Get all items
      *
-     * @param QueryBuilderInterface $builder
      * @param array $args
      * @return mixed
      */
-    public function fetchAll(QueryBuilderInterface $builder, $args = []);
+    public function fetchAll(array $args = []);
 }

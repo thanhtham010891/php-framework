@@ -154,6 +154,20 @@ interface QueryBuilderInterface
     public function innerJoin($table, QueryBuilderInterface $conditions);
 
     /**
+     * @param string|QueryBuilderInterface $table
+     * @param QueryBuilderInterface $conditions
+     * @return $this
+     */
+    public function leftJoin($table, QueryBuilderInterface $conditions);
+
+    /**
+     * @param string|QueryBuilderInterface $table
+     * @param QueryBuilderInterface $conditions
+     * @return $this
+     */
+    public function rightJoin($table, QueryBuilderInterface $conditions);
+
+    /**
      * @param $limit
      * @param $offset
      * @return $this
