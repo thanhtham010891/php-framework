@@ -40,7 +40,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     }
 
     /**
-     * @return mixed
+     * @return string
      * @throws ApplicationException
      */
     public function getTable()

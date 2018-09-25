@@ -34,18 +34,6 @@ interface ModelInterface
     public function getColumns();
 
     /**
-     * This function will clone to new QueryBuilder
-     *
-     * @return QueryBuilderInterface
-     */
-    public function getNewQueryBuilder();
-
-    /**
-     * @return QueryBuilderInterface
-     */
-    public function getQueryBuilder();
-
-    /**
      * Get One item by primaryKey
      *
      * @param $id

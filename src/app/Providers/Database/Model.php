@@ -68,7 +68,7 @@ abstract class Model implements ModelInterface
     /**
      * @return string
      */
-    public function getTable()
+    final public function getTable()
     {
         return trim($this->identity['table'], '`');
     }
@@ -76,37 +76,25 @@ abstract class Model implements ModelInterface
     /**
      * @return string
      */
-    public function getPrimaryKey()
+    final public function getPrimaryKey()
     {
+        if (empty($this->identity['primaryKey'])) {
+            $this->identity['primaryKey'] = 'id';
+        }
+
         return trim($this->identity['primaryKey'], '`');
     }
 
     /**
      * @return array
      */
-    public function getColumns()
+    final public function getColumns()
     {
+        if (empty($this->identity['columns'])) {
+            $this->identity['columns'] = [];
+        }
+
         return $this->identity['columns'];
-    }
-
-    /**
-     * @return QueryBuilderInterface
-     */
-    final public function getQueryBuilder()
-    {
-        return $this->_builder;
-    }
-
-    /**
-     * @return QueryBuilderInterface
-     */
-    final public function getNewQueryBuilder()
-    {
-        $builder = clone $this->getQueryBuilder();
-
-        $builder->clearQueryResource();
-
-        return $builder;
     }
 
     /**
@@ -114,7 +102,7 @@ abstract class Model implements ModelInterface
      * @return bool
      * @throws ApplicationException
      */
-    public function create(array $data)
+    final public function create(array $data)
     {
         list($fields, $values, $alias) = $this->_parseFieldsValue($data);
 
@@ -128,7 +116,7 @@ abstract class Model implements ModelInterface
      * @return bool
      * @throws ApplicationException
      */
-    public function update(array $data)
+    final public function update(array $data)
     {
         list($fields, $values, $alias) = $this->_parseFieldsValue($data);
 
@@ -142,7 +130,7 @@ abstract class Model implements ModelInterface
      *
      * @return bool
      */
-    public function delete()
+    final public function delete()
     {
         return $this->getDatabase()->execute(
             $this->getQueryBuilder()->buildQueryDelete()
@@ -152,7 +140,7 @@ abstract class Model implements ModelInterface
     /**
      * @return bool
      */
-    public function truncate()
+    final public function truncate()
     {
         return $this->getDatabase()->execute(
             $this->getQueryBuilder()->buildQueryTruncate()
@@ -163,7 +151,7 @@ abstract class Model implements ModelInterface
      * @param array $args
      * @return Object
      */
-    public function fetchOne(array $args = [])
+    final public function fetchOne(array $args = [])
     {
         return $this->getDatabase()->fetchOne(
             $this->getQueryBuilder()->buildExecuteNoneQuery(), $args, get_class($this)
@@ -174,7 +162,7 @@ abstract class Model implements ModelInterface
      * @param array $args
      * @return array
      */
-    public function fetchAll(array $args = [])
+    final public function fetchAll(array $args = [])
     {
         return $this->getDatabase()->fetchAll(
             $this->getQueryBuilder()->buildExecuteNoneQuery(), $args, get_class($this)
@@ -183,13 +171,33 @@ abstract class Model implements ModelInterface
 
     /**
      * @param $id
-     * @return Object
+     * @return bool|object
      */
-    public function findById($id)
+    final public function findById($id)
     {
         $this->getQueryBuilder()->whereEqual($this->getPrimaryKey(), '?');
 
         return $this->fetchOne([$id]);
+    }
+
+    /**
+     * @return QueryBuilderInterface
+     */
+    final protected function getQueryBuilder()
+    {
+        return $this->_builder;
+    }
+
+    /**
+     * @return QueryBuilderInterface
+     */
+    final protected function getNewQueryBuilder()
+    {
+        $builder = clone $this->getQueryBuilder();
+
+        $builder->clearQueryResource();
+
+        return $builder;
     }
 
     /**
