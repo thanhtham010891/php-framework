@@ -1,9 +1,10 @@
-<?php define('ROOT', dirname(__DIR__));
+<?php
+define('__ROOT__', dirname(__DIR__));
 
 use App\Core\Application;
 use App\Exceptions\ApplicationException;
 
-require_once ROOT . '/vendor/autoload.php';
+require_once __ROOT__ . '/vendor/autoload.php';
 
 try {
 
@@ -11,9 +12,14 @@ try {
      * Init application
      */
     Application::instance(
-        new Application(require ROOT . '/config/settings.php')
+        new Application([
+            'domain' => 'http://thamtt.local',
+            '__MAIN__' => __FILE__,
+            'development' => true,
+            'base_dir' => __ROOT__,
+        ])
     )->run();
 
 } catch (ApplicationException $e) {
-    echo $e->getMessage();
+    Application::instance()->errors($e);
 }

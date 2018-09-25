@@ -17,12 +17,17 @@ interface DatabaseInterface extends ServiceInterface
     public function getConnection();
 
     /**
+     * @return string
+     */
+    public function getDatabaseName();
+
+    /**
      * @param string $sql
      * @param array $params
      * @param string $fetchClass
      * @return Object
      */
-    public function fetch($sql, array $params = [], $fetchClass = "");
+    public function fetchOne($sql, array $params = [], $fetchClass = "");
 
     /**
      * @param string $sql

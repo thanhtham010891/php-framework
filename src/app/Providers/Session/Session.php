@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Services;
+namespace App\Proviers\Services;
 
 use App\Core\Contract\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Session AS SymfonySession;

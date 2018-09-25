@@ -9,23 +9,23 @@ use App\Core\Contract\ServiceInterface;
 use App\Core\Contract\RouteInterface;
 use App\Core\Contract\RequestInterface;
 use App\Core\Contract\ResponseInterface;
-use App\Core\Contract\SessionInterface;
 
+use App\Core\Services\Route;
 use App\Exceptions\ApplicationException;
 
 use App\Core\Services\Request;
 use App\Core\Services\Response;
-use App\Core\Services\Session;
+
+include_once('helpers/path.php');
 
 /**
  * Class Application
+ *
  * @author thamtt@nal.vn
  * @package App\Core
  */
 class Application
 {
-
-    const DS = DIRECTORY_SEPARATOR;
 
     /**
      * Application settings
@@ -46,16 +46,21 @@ class Application
 
         'domain' => 'http://thamtt.local',
 
-        /**
-         * Base dir
-         */
         'base_dir' => '/var/www/html',
+
+        'public' => [
+            'path' => 'public'
+        ],
+
+        'app' => [
+            'path' => 'app'
+        ],
 
         /**
          * Providers settings resources
          */
         'providers' => [
-            'path' => '/app/Providers'
+            'path' => 'app/Providers'
         ],
 
         /**
@@ -64,7 +69,6 @@ class Application
         'storage' => [
             'path' => 'storage'
         ]
-
     ];
 
     /**
@@ -115,24 +119,11 @@ class Application
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getBaseDir()
+    public function getSettings()
     {
-        return rtrim($this->settings['base_dir'], self::DS) . self::DS;
-    }
-
-    /**
-     * @return string
-     */
-    public function getProviderPath()
-    {
-        return $this->getBaseDir() . rtrim($this->settings['providers']['path'], self::DS) . self::DS;
-    }
-
-    public function getStoragePath()
-    {
-        return $this->getBaseDir() . rtrim($this->settings['storage']['path'], self::DS) . self::DS;
+        return $this->settings;
     }
 
     /**
@@ -143,7 +134,10 @@ class Application
         return $this->settings['__MAIN__'];
     }
 
-    public function isDevelop()
+    /**
+     * @return bool
+     */
+    public function isDevelopMode()
     {
         return in_array(
             strtolower($this->settings['development']), [true, 'true', 1, '1', 'develop', 'development', 'dev', 'local']
@@ -171,7 +165,7 @@ class Application
      */
     public function run()
     {
-        if ($this->isDevelop()) {
+        if ($this->isDevelopMode()) {
             ini_set('display_errors', true);
             ini_set('error_reporting', E_ALL);
         }
@@ -180,50 +174,66 @@ class Application
 
         $this->_registerExternalService();
 
-        $controllerResources = $this->_getControllerResource(
-            $this->getService(RouteInterface::class), $this->getService(RequestInterface::class)
+        /**
+         * @var RouteInterface $route
+         */
+        $route = $this->getService(RouteInterface::class);
+
+        $controllerResources = $route->getControllerResource(
+            $this->getService(RequestInterface::class)
         );
 
-        if (!empty($controllerResources)) {
+        if (empty($controllerResources)) {
 
-            $controllerObject = new $controllerResources['controller'];
-
-            /**
-             * Bootstrap controller
-             */
-            if ($controllerObject instanceof DispatchInterface) {
-                $controllerObject->dispatch($this->services);
-            }
-
-            /**
-             * Controller is running
-             */
-            $responseData = call_user_func_array(
-                [$controllerObject, $controllerResources['method']], $controllerResources['args']
-            );
-
-            if ($controllerObject instanceof WebInterface) {
-                $controllerObject->render($responseData);
-            } elseif ($controllerObject instanceof ApiInterface) {
-                $controllerObject->send();
-            }
-
-            unset($controllerObject, $controllerResources);
-
-        } else {
             throw new ApplicationException('Controller resource is not registered');
         }
 
         /**
-         * Terminate all service
+         * Using for require static page or restart new an another application
          */
-        foreach ($this->getAllService() as $service) {
-            /**
-             * @var ServiceInterface $service
-             */
-            if ($service instanceof ServiceInterface) {
-                $service->terminate();
-            }
+        if (isset($controllerResources['require'])) {
+
+            $this->_terminateAllService();
+
+            require_path($controllerResources['require']);
+
+            exit;
+        }
+
+        /**
+         * Bootstrap controller
+         */
+        $controllerObject = new $controllerResources['controller'];
+
+        if ($controllerObject instanceof DispatchInterface) {
+            $controllerObject->dispatch($this->services);
+        }
+
+        /**
+         * Controller is running
+         */
+        $responseData = call_user_func_array(
+            [$controllerObject, $controllerResources['method']], $controllerResources['args']
+        );
+
+        if ($controllerObject instanceof WebInterface) {
+            $controllerObject->render($responseData);
+        } elseif ($controllerObject instanceof ApiInterface) {
+            $controllerObject->send();
+        }
+
+        unset($controllerObject, $controllerResources);
+
+        $this->_terminateAllService();
+    }
+
+    public function errors(ApplicationException $e)
+    {
+        if ($this->isDevelopMode()) {
+            echo 'Errors: ' . $e->getMessage();
+            echo '<pre>', $e->getTraceAsString(), '</pre>';
+        } else {
+            echo 'Errors!';
         }
     }
 
@@ -241,64 +251,6 @@ class Application
     }
 
     /**
-     * @param RouteInterface $route
-     * @param RequestInterface $request
-     * @return array
-     * @throws ApplicationException
-     */
-    private function _getControllerResource(RouteInterface $route, RequestInterface $request)
-    {
-        $resource = $args = [];
-
-        $path = '/' . trim($request->getPath(), '/');
-
-        $routes = $route->getResource();
-
-        if (!empty($routes[$path])) {
-
-            $resource = $routes[$path];
-
-        } else {
-
-            foreach ($routes as $pattern => $routeResource) {
-
-                if (preg_match_all('#^' . trim($pattern, '#') . '$#Usm', $path, $args)) {
-                    $resource = $routeResource;
-                    break;
-                }
-            }
-        }
-
-        if (empty($resource)) {
-            return [];
-        }
-
-        if (!is_array($resource)) {
-            throw new ApplicationException('Route item must be an array');
-        }
-
-        if (empty($resource['controller'])) {
-            throw new ApplicationException('Route item[controller] is required');
-        }
-
-        if (!class_exists($resource['controller'])) {
-            throw new ApplicationException('Controller "' . $resource['controller'] . '" does not exist');
-        }
-
-        if (empty($resource['method'])) {
-            throw new ApplicationException('Route item[method] is required');
-        }
-
-        if (empty($resource['name'])) {
-            $resource['name'] = $resource['controller'] . '.' . $resource['method'];
-        }
-
-        $resource['args'] = $args;
-
-        return $resource;
-    }
-
-    /**
      * Register system core services
      */
     private function _registerBaseServices()
@@ -311,33 +263,48 @@ class Application
             return new Response();
         });
 
-        $this->setService(SessionInterface::class, function ($settings) {
-            return new Session($settings);
+        $this->setService(RouteInterface::class, function () {
+            return new Route();
         });
     }
 
     /**
-     * Register external services
+     * @throws ApplicationException
      */
     private function _registerExternalService()
     {
-        foreach (require_once($this->getProviderPath() . 'bootstrap.php') as $provider) {
+        foreach (require_path(provider_path() . 'bootstrap.php') as $provider) {
 
             if (empty($provider['status'])) {
                 continue;
             }
 
             if (file_exists($provider['settings'])) {
-                $this->services->settings(require_once($provider['settings']));
+                $this->services->settings(require_path($provider['settings']));
             }
 
             if (file_exists($provider['services'])) {
 
-                $services = require_once($provider['services']);
+                $services = require_path($provider['services']);
 
                 foreach ($services as $contract => $service) {
                     $this->setService($contract, $service);
                 }
+            }
+        }
+    }
+
+    private function _terminateAllService()
+    {
+        /**
+         * Terminate all service
+         */
+        foreach ($this->getAllService() as $service) {
+            /**
+             * @var ServiceInterface $service
+             */
+            if ($service instanceof ServiceInterface) {
+                $service->terminate();
             }
         }
     }

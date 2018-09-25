@@ -1,14 +1,12 @@
 <?php
 
-$ds = DIRECTORY_SEPARATOR;
-
 return [
     'views' => [
-        'path' => dirname(__FILE__) . $ds . 'src',
+        'path' => dirname(__FILE__) . '/src',
         'cache' => [
             'status' => true,
-            'path' => $this->getStoragePath() . 'views',
+            'path' => storage_path() . 'views',
         ],
-        'page_404' => dirname(__FILE__) . $ds . 'src' . $ds . '404.php'
+        'page_404' => dirname(__FILE__) . '/src/404.php'
     ]
 ];

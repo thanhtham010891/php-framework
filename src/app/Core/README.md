@@ -1,0 +1,1 @@
+### Do not modify any file in this folder "app/Core"
