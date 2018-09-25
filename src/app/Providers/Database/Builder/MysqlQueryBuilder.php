@@ -11,7 +11,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @var array
      */
     private $queryFormat = [
-        'none_execute_query' => 'SELECT %fields% FROM %table% %join_conditions% WHERE %conditions% %order_by% %limit%',
+        'none_execute_query' => 'SELECT %fields% FROM %table% %join_conditions% WHERE %conditions% %group_by% %order_by% %limit%',
         'create' => 'INSERT INTO %table% (%fields%) VALUES(%values%)',
         'update' => 'UPDATE %table% SET %fields_values% WHERE %conditions%',
         'delete' => 'DELETE FROM %table% WHERE %conditions%',
@@ -30,8 +30,10 @@ class MysqlQueryBuilder implements QueryBuilderInterface
             'from' => '',
             'join' => [],
             'where' => [],
+            'order_by' => [],
+            'group_by' => [],
+            'having' => [],
             'limit' => '',
-            'order_by'
         ];
 
         return $this;
@@ -71,6 +73,60 @@ class MysqlQueryBuilder implements QueryBuilderInterface
         }
 
         return '1 ' . implode(' ', $this->queryResource['where']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryJoins()
+    {
+        return implode(' ', $this->queryResource['join']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryLimit()
+    {
+        if (empty($this->queryResource['limit'])) {
+            return '';
+        }
+
+        if (empty($this->queryResource['limit']['offset'])) {
+            return 'LIMIT ' . $this->queryResource['limit']['limit'];
+        }
+
+        return 'LIMIT ' . $this->queryResource['limit']['offset'] . ', ' . $this->queryResource['limit']['limit'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryOrderBy()
+    {
+        if (empty($this->queryResource['order_by'])) {
+            return '';
+        }
+
+        return 'ORDER BY ' . implode(', ', $this->queryResource['order_by']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryGroupBy()
+    {
+        if (empty($this->queryResource['group_by'])) {
+            return '';
+        }
+
+        $having = '';
+
+        if (!empty($this->queryResource['having'])) {
+            $having = 'HAVING ' . implode(' ', $this->queryResource['having']);
+        }
+
+        return 'GROUP BY ' . implode(', ', $this->queryResource['group_by']) . ' ' . $having;
     }
 
     /**
@@ -143,10 +199,11 @@ class MysqlQueryBuilder implements QueryBuilderInterface
         return strtr($this->queryFormat['none_execute_query'], [
             '%fields%' => $this->queryResource['select'],
             '%table%' => $this->getTable(),
-            '%join_conditions%' => $this->_getJoins(),
+            '%join_conditions%' => $this->getQueryJoins(),
             '%conditions%' => $this->getQueryConditions(),
-            '%order_by%' => '',
-            '%limit%' => $this->_getLimit()
+            '%group_by%' => $this->getQueryGroupBy(),
+            '%order_by%' => $this->getQueryOrderBy(),
+            '%limit%' => $this->getQueryLimit()
         ]);
     }
 
@@ -249,6 +306,34 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @param $field
+     * @param $value
+     * @param bool $and
+     * @return $this|QueryBuilderInterface
+     * @throws ApplicationException
+     */
+    public function whereRLike($field, $value, $and = true)
+    {
+        $this->_queryConditions($field, $value, 'RLIKE', $and ? 'AND' : 'OR');
+
+        return $this;
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @param bool $and
+     * @return $this|QueryBuilderInterface
+     * @throws ApplicationException
+     */
+    public function whereRNotLike($field, $value, $and = true)
+    {
+        $this->_queryConditions($field, $value, 'NOT RLIKE', $and ? 'AND' : 'OR');
+
+        return $this;
+    }
+
+    /**
+     * @param $field
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
@@ -340,14 +425,49 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     }
 
     /**
+     * @param string $fields
+     * @param string $sort
+     * @return $this|QueryBuilderInterface
+     * @throws ApplicationException
+     */
+    public function orderBy($fields, $sort = 'DESC')
+    {
+        $this->queryResource['order_by'][] = $this->_fieldsFormatToString([$fields]) . ' ' . trim($sort);
+
+        return $this;
+    }
+
+    /**
+     * @param $fields
+     * @return $this|QueryBuilderInterface
+     * @throws ApplicationException
+     */
+    public function groupBy($fields)
+    {
+        $this->queryResource['group_by'][] = $this->_fieldsFormatToString([$fields]);
+
+        return $this;
+    }
+
+    /**
+     * @param QueryBuilderInterface $conditions
+     * @return $this|QueryBuilderInterface
+     */
+    public function having(QueryBuilderInterface $conditions)
+    {
+        $this->queryResource['having'][] = $conditions->getQueryConditions();
+
+        return $this;
+    }
+
+    /**
      * @param $limit
      * @param int $offset
      * @return $this|QueryBuilderInterface
      */
     public function limit($limit, $offset = 0)
     {
-        $this->queryResource['limit'] = compact($limit, $offset);
-
+        $this->queryResource['limit'] = ['limit' => $limit, 'offset' => $offset];
         return $this;
     }
 
@@ -373,11 +493,6 @@ class MysqlQueryBuilder implements QueryBuilderInterface
         }
 
         return $fields;
-    }
-
-    private function _getJoins()
-    {
-        return implode(' ', $this->queryResource['join']);
     }
 
     private function _queryJoins($table, QueryBuilderInterface $conditions, $leftInRight)
@@ -407,18 +522,5 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     {
         return $this->queryResource['where'][] = $andOr . ' ' . $this->_fieldsFormatToString([$field]) .
             ' ' . $operator . ' ' . trim($value);
-    }
-
-    private function _getLimit()
-    {
-        if (empty($this->queryResource['limit'])) {
-            return '';
-        }
-
-        if (empty($this->queryResource['limit']['offset'])) {
-            return 'LIMIT ' . $this->queryResource['limit']['limit'];
-        }
-
-        return 'LIMIT ' . $this->queryResource['limit']['offset'] . ', ' . $this->queryResource['limit']['limit'];
     }
 }

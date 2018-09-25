@@ -26,6 +26,25 @@ interface QueryBuilderInterface
      */
     public function getQueryConditions();
 
+    /**
+     * @return string
+     */
+    public function getQueryJoins();
+
+    /**
+     * @return string
+     */
+    public function getQueryLimit();
+
+    /**
+     * @return string
+     */
+    public function getQueryOrderBy();
+
+    /**
+     * @return string
+     */
+    public function getQueryGroupBy();
 
     // EXECUTE QUERY
 
@@ -116,6 +135,22 @@ interface QueryBuilderInterface
 
     /**
      * @param $field
+     * @param $value
+     * @param bool $and
+     * @return $this
+     */
+    public function whereRLike($field, $value, $and = true);
+
+    /**
+     * @param $field
+     * @param $value
+     * @param bool $and
+     * @return $this
+     */
+    public function whereRNotLike($field, $value, $and = true);
+
+    /**
+     * @param $field
      * @param string $value
      * @param bool $and
      * @return $this
@@ -166,6 +201,25 @@ interface QueryBuilderInterface
      * @return $this
      */
     public function rightJoin($table, QueryBuilderInterface $conditions);
+
+    /**
+     * @param string $fields
+     * @param string $sort
+     * @return $this
+     */
+    public function orderBy($fields, $sort = 'DESC');
+
+    /**
+     * @param $fields
+     * @return $this
+     */
+    public function groupBy($fields);
+
+    /**
+     * @param QueryBuilderInterface $conditions
+     * @return $this
+     */
+    public function having(QueryBuilderInterface $conditions);
 
     /**
      * @param $limit
