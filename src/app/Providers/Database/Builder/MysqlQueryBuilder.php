@@ -2,8 +2,8 @@
 
 namespace App\Providers\Database\Builder;
 
-use App\Core\Contract\Database\QueryBuilderInterface;
-use App\Exceptions\ApplicationException;
+use System\Contract\Database\QueryBuilderInterface;
+use System\BaseException;
 
 class MysqlQueryBuilder implements QueryBuilderInterface
 {
@@ -11,8 +11,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @var array
      */
     private $queryFormat = [
-        'none_execute_query' => 'SELECT %fields% FROM %table% %join_conditions% 
-WHERE %conditions% %group_by% %order_by% %limit% %union%',
+        'none_execute_query' => 'SELECT %fields% FROM %table% %join_conditions% WHERE %conditions% %group_by% %order_by% %limit% %union%',
         'create' => 'INSERT INTO %table% (%fields%) VALUES(%values%)',
         'update' => 'UPDATE %table% SET %fields_values% WHERE %conditions%',
         'delete' => 'DELETE FROM %table% WHERE %conditions%',
@@ -56,12 +55,12 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function getTable()
     {
         if (empty($this->queryResource['from'])) {
-            throw new ApplicationException('MysqlQueryBuilder: table is empty');
+            throw new BaseException('MysqlQueryBuilder: table is empty');
         }
 
         return $this->queryResource['from'];
@@ -157,7 +156,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param array $fields
      * @param array $values
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildQueryCreate(array $fields, array $values)
     {
@@ -174,7 +173,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param array $fields
      * @param array $values
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildQueryUpdate(array $fields, array $values)
     {
@@ -193,7 +192,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildQueryDelete()
     {
@@ -205,7 +204,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildQueryTruncate()
     {
@@ -216,11 +215,11 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildExecuteNoneQuery()
     {
-        return strtr($this->queryFormat['none_execute_query'], [
+        return trim(strtr($this->queryFormat['none_execute_query'], [
             '%fields%' => $this->queryResource['select'],
             '%table%' => $this->getTable(),
             '%join_conditions%' => $this->getQueryJoins(),
@@ -229,7 +228,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
             '%order_by%' => $this->getQueryOrderBy(),
             '%limit%' => $this->getQueryLimit(),
             '%union%' => $this->getQueryUnion(),
-        ]);
+        ]));
     }
 
     /**
@@ -250,7 +249,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereEqual($field, $value, $and = true)
     {
@@ -264,7 +263,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereNotEqual($field, $value, $and = true)
     {
@@ -278,7 +277,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param array $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereIn($field, array $value, $and = true)
     {
@@ -292,7 +291,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param array $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereNotIn($field, array $value, $and = true)
     {
@@ -306,7 +305,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereLike($field, $value, $and = true)
     {
@@ -320,7 +319,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereNotLike($field, $value, $and = true)
     {
@@ -334,7 +333,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereRLike($field, $value, $and = true)
     {
@@ -348,7 +347,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereRNotLike($field, $value, $and = true)
     {
@@ -362,7 +361,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereMoreThan($field, $value, $and = true)
     {
@@ -376,7 +375,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereLessThan($field, $value, $and = true)
     {
@@ -390,7 +389,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereMoreOrEqual($field, $value, $and = true)
     {
@@ -404,7 +403,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereLessOrEqual($field, $value, $and = true)
     {
@@ -453,7 +452,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param string $fields
      * @param string $sort
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function orderBy($fields, $sort = 'DESC')
     {
@@ -465,7 +464,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
     /**
      * @param $fields
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function groupBy($fields)
     {
@@ -511,7 +510,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
     /**
      * @param array $fields
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     private function _fieldsFormatToString(array $fields)
     {
@@ -521,7 +520,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
     /**
      * @param array $fields
      * @return array
-     * @throws ApplicationException
+     * @throws BaseException
      */
     private function _fieldsFormatToArray(array $fields)
     {
@@ -553,7 +552,7 @@ WHERE %conditions% %group_by% %order_by% %limit% %union%',
      * @param string $operator
      * @param string $andOr
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     private function _queryConditions($field, $value, $operator, $andOr)
     {

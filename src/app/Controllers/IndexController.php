@@ -2,20 +2,34 @@
 
 namespace App\Controllers;
 
-use App\Core\Controller;
-use App\Core\Contract\Controllers\WebInterface;
+use App\Models\Post;
+use App\Models\User;
+use App\Providers\Database\Model\UseModelTrait;
 
-use App\Providers\View\Type\WebTrait;
+use System\Controller;
 
-class IndexController extends Controller implements WebInterface
+class IndexController extends Controller
 {
-    use WebTrait;
 
+    use UseModelTrait;
+
+    /**
+     * @throws \System\BaseException
+     */
     public function index()
     {
-        return [
-            'render' => 'index.html',
-            'data' => ['name' => 'thamtt', 'email' => 'thamtt@gmail.com']
-        ];
+        /**
+         * @var User $user
+         * @var Post $post
+         */
+        $user = $this->getModel(User::class);
+        $post = $this->getModel(Post::class);
+
+        $builder = $user->getQueryBuilder();
+
+        $builder->whereIn('id', [1, 2, 3])->whereEqual('email', '"thamtt@nal.vn"');
+        $builder->innerJoin('posts', $post->getQueryBuilder()->whereEqual('user_id', 'users.id'));
+
+        echo $builder->buildExecuteNoneQuery();
     }
 }

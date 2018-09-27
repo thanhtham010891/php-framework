@@ -1,8 +1,9 @@
 <?php
 define('__ROOT__', dirname(__DIR__));
 
-use App\Core\Application;
-use App\Exceptions\ApplicationException;
+
+use System\Application;
+use System\BaseException;
 
 require_once __ROOT__ . '/vendor/autoload.php';
 
@@ -13,13 +14,12 @@ try {
      */
     Application::instance(
         new Application([
-            'domain' => 'http://thamtt.local',
             '__MAIN__' => __FILE__,
             'development' => true,
             'base_dir' => __ROOT__,
         ])
     )->run();
 
-} catch (ApplicationException $e) {
+} catch (BaseException $e) {
     Application::instance()->errors($e);
 }

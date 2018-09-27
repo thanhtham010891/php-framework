@@ -2,10 +2,10 @@
 
 namespace App\Providers\Database;
 
-use App\Core\Contract\Database\QueryBuilderInterface;
-use App\Core\Contract\Database\ModelInterface;
-use App\Core\Contract\Database\DatabaseInterface;
-use App\Exceptions\ApplicationException;
+use System\Contract\Database\QueryBuilderInterface;
+use System\Contract\Database\ModelInterface;
+use System\Contract\Database\DatabaseInterface;
+use System\BaseException;
 
 abstract class Model implements ModelInterface
 {
@@ -100,7 +100,7 @@ abstract class Model implements ModelInterface
     /**
      * @param array $data
      * @return bool
-     * @throws ApplicationException
+     * @throws BaseException
      */
     final public function create(array $data)
     {
@@ -114,7 +114,7 @@ abstract class Model implements ModelInterface
     /**
      * @param array $data
      * @return bool
-     * @throws ApplicationException
+     * @throws BaseException
      */
     final public function update(array $data)
     {
@@ -191,7 +191,7 @@ abstract class Model implements ModelInterface
     /**
      * @param array $data
      * @return array
-     * @throws ApplicationException
+     * @throws BaseException
      */
     private function _parseFieldsValue(array $data)
     {
@@ -207,7 +207,7 @@ abstract class Model implements ModelInterface
         }
 
         if (empty($fields)) {
-            throw new ApplicationException(
+            throw new BaseException(
                 'Database > model: table[' . $this->getTable() . '] have no columns for update or create'
             );
         }

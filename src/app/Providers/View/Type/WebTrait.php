@@ -2,8 +2,9 @@
 
 namespace App\Providers\View\Type;
 
-use App\Core\Contract\ViewManagerInterface;
-use App\Exceptions\ApplicationException;
+use System\Contract\View\ViewManagerInterface;
+use System\BaseException;
+
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
@@ -17,7 +18,7 @@ trait WebTrait
 
     /**
      * @param array $args
-     * @throws ApplicationException
+     * @throws BaseException
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Runtime
      * @throws \Twig_Error_Syntax
@@ -25,7 +26,7 @@ trait WebTrait
     public function render(array $args)
     {
         if (empty($args['render'])) {
-            throw new ApplicationException('View path is not registered');
+            throw new BaseException('View path is not registered');
         }
 
         if (empty($args['data'])) {

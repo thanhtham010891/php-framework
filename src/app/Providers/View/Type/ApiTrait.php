@@ -2,7 +2,7 @@
 
 namespace App\Providers\View\Type;
 
-use App\Core\Contract\ResponseInterface;
+use System\Contract\ResponseInterface;
 
 trait ApiTrait
 {

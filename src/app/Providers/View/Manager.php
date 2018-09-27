@@ -2,7 +2,7 @@
 
 namespace App\Providers\View;
 
-use App\Core\Contract\ViewManagerInterface;
+use System\Contract\View\ViewManagerInterface;
 
 class Manager implements ViewManagerInterface
 {

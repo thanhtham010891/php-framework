@@ -2,9 +2,9 @@
 
 namespace App\Providers\Database;
 
-use App\Core\Contract\Database\ConnectionInterface;
-use App\Core\Contract\Database\DatabaseInterface;
-use App\Exceptions\ApplicationException;
+use System\Contract\Database\ConnectionInterface;
+use System\Contract\Database\DatabaseInterface;
+use System\BaseException;
 
 class Database implements DatabaseInterface
 {
@@ -20,12 +20,12 @@ class Database implements DatabaseInterface
 
     /**
      * @return ConnectionInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function getConnection()
     {
         if (empty($this->connection)) {
-            throw new ApplicationException('Database connection is empty');
+            throw new BaseException('Database connection is empty');
         }
 
         if (empty($this->connection->getResource())) {
@@ -37,7 +37,7 @@ class Database implements DatabaseInterface
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function getDatabaseName()
     {
@@ -54,7 +54,7 @@ class Database implements DatabaseInterface
     }
 
     /**
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function terminate()
     {
@@ -71,7 +71,7 @@ class Database implements DatabaseInterface
      * @param array $params
      * @param string $fetchClass
      * @return mixed|Object
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function fetchOne($sql, array $params = [], $fetchClass = "")
     {
@@ -83,7 +83,7 @@ class Database implements DatabaseInterface
      * @param array $params
      * @param string $fetchClass
      * @return array
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function fetchAll($sql, array $params = [], $fetchClass = "")
     {
@@ -94,7 +94,7 @@ class Database implements DatabaseInterface
      * @param string $sql
      * @param array $params
      * @return bool
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function execute($sql, array $params = [])
     {

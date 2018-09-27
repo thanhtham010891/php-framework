@@ -2,10 +2,10 @@
 
 namespace App\Providers\Database\Model;
 
-use App\Core\Contract\Database\QueryBuilderInterface;
-use App\Core\Contract\Database\DatabaseInterface;
-use App\Core\Contract\Database\ModelInterface;
-use App\Exceptions\ApplicationException;
+use System\Contract\Database\QueryBuilderInterface;
+use System\Contract\Database\DatabaseInterface;
+use System\Contract\Database\ModelInterface;
+use System\BaseException;
 
 trait UseModelTrait
 {
@@ -18,7 +18,7 @@ trait UseModelTrait
     /**
      * @param $model
      * @return ModelInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function getModel($model)
     {
@@ -33,6 +33,6 @@ trait UseModelTrait
             return $model;
         }
 
-        throw new ApplicationException('Database > Model: "' . $model . '" should be implements from ' . ModelInterface::class);
+        throw new BaseException('Database > Model: "' . $model . '" should be implements from ' . ModelInterface::class);
     }
 }
