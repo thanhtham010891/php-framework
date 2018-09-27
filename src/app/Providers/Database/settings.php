@@ -5,6 +5,8 @@ return [
      * Model settings resources
      */
     'models' => [
+        'driver' => 'mysql',
+
         'connection' => [
             'hostname' => 'mysql.local',
             'username' => 'root',

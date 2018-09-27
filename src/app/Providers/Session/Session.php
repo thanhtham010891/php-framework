@@ -37,6 +37,11 @@ class Session implements SessionInterface
         // TODO: Implement terminate() method.
     }
 
+    public function replicate()
+    {
+        return false;
+    }
+
     public function all()
     {
         return $this->symfonySession->all();

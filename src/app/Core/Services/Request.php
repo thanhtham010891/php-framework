@@ -14,16 +14,6 @@ class Request implements RequestInterface
         $this->symfonyRequest = SymfonyRequest::createFromGlobals();
     }
 
-    public function bootstrap()
-    {
-        // TODO: Implement bootstrap() method.
-    }
-
-    public function terminate()
-    {
-        // TODO: Implement terminate() method.
-    }
-
     public function getAllQueryParam()
     {
         return $this->symfonyRequest->query->all();

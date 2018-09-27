@@ -4,7 +4,7 @@ namespace App\Core\Contract;
 
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
-interface ResponseInterface extends ServiceInterface
+interface ResponseInterface
 {
     /**
      * @param string $content

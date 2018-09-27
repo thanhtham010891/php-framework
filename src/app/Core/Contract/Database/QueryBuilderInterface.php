@@ -2,7 +2,9 @@
 
 namespace App\Core\Contract\Database;
 
-interface QueryBuilderInterface
+use App\Core\Contract\ServiceInterface;
+
+interface QueryBuilderInterface extends ServiceInterface
 {
 
     /**
@@ -45,6 +47,11 @@ interface QueryBuilderInterface
      * @return string
      */
     public function getQueryGroupBy();
+
+    /**
+     * @return string
+     */
+    public function getQueryUnion();
 
     // EXECUTE QUERY
 
@@ -171,7 +178,7 @@ interface QueryBuilderInterface
      * @param bool $and
      * @return $this
      */
-    public function whereMoreOrEqualThan($field, $value, $and = true);
+    public function whereMoreOrEqual($field, $value, $and = true);
 
     /**
      * @param $field
@@ -179,28 +186,28 @@ interface QueryBuilderInterface
      * @param bool $and
      * @return $this
      */
-    public function whereLessOrEqualThan($field, $value, $and = true);
+    public function whereLessOrEqual($field, $value, $and = true);
 
     /**
      * @param string|QueryBuilderInterface $table
-     * @param array|QueryBuilderInterface $conditions
+     * @param array|QueryBuilderInterface $statement
      * @return $this
      */
-    public function innerJoin($table, QueryBuilderInterface $conditions);
+    public function innerJoin($table, QueryBuilderInterface $statement);
 
     /**
      * @param string|QueryBuilderInterface $table
-     * @param QueryBuilderInterface $conditions
+     * @param QueryBuilderInterface $statement
      * @return $this
      */
-    public function leftJoin($table, QueryBuilderInterface $conditions);
+    public function leftJoin($table, QueryBuilderInterface $statement);
 
     /**
      * @param string|QueryBuilderInterface $table
-     * @param QueryBuilderInterface $conditions
+     * @param QueryBuilderInterface $statement
      * @return $this
      */
-    public function rightJoin($table, QueryBuilderInterface $conditions);
+    public function rightJoin($table, QueryBuilderInterface $statement);
 
     /**
      * @param string $fields
@@ -216,10 +223,10 @@ interface QueryBuilderInterface
     public function groupBy($fields);
 
     /**
-     * @param QueryBuilderInterface $conditions
+     * @param QueryBuilderInterface $statement
      * @return $this
      */
-    public function having(QueryBuilderInterface $conditions);
+    public function having(QueryBuilderInterface $statement);
 
     /**
      * @param $limit
@@ -227,4 +234,10 @@ interface QueryBuilderInterface
      * @return $this
      */
     public function limit($limit, $offset = 0);
+
+    /**
+     * @param QueryBuilderInterface $statement
+     * @return $this
+     */
+    public function union(QueryBuilderInterface $statement);
 }

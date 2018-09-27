@@ -61,6 +61,11 @@ class Database implements DatabaseInterface
         $this->getConnection()->closeConnect();
     }
 
+    public function replicate()
+    {
+        return false;
+    }
+
     /**
      * @param string $sql
      * @param array $params

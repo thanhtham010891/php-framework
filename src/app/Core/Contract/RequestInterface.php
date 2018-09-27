@@ -3,7 +3,7 @@
 namespace App\Core\Contract;
 
 
-interface RequestInterface extends ServiceInterface
+interface RequestInterface
 {
 
     /**

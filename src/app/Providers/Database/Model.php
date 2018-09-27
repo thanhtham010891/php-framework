@@ -183,21 +183,9 @@ abstract class Model implements ModelInterface
     /**
      * @return QueryBuilderInterface
      */
-    final protected function getQueryBuilder()
+    final public function getQueryBuilder()
     {
         return $this->_builder;
-    }
-
-    /**
-     * @return QueryBuilderInterface
-     */
-    final protected function getNewQueryBuilder()
-    {
-        $builder = clone $this->getQueryBuilder();
-
-        $builder->clearQueryResource();
-
-        return $builder;
     }
 
     /**

@@ -12,16 +12,6 @@ class Response implements ResponseInterface
      */
     private $response;
 
-    public function bootstrap()
-    {
-        // TODO: Implement bootstrap() method.
-    }
-
-    public function terminate()
-    {
-        // TODO: Implement terminate() method.
-    }
-
     public function prepare($content = '', $status = 200, array $headers = array())
     {
         $this->response = SymfonyResponse::create($content, $status, $headers);

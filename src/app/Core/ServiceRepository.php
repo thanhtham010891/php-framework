@@ -5,13 +5,22 @@ namespace App\Core;
 use App\Core\Contract\ServiceInterface;
 use App\Exceptions\ApplicationException;
 
-
 class ServiceRepository implements \ArrayAccess
 {
     /**
+     * All services inject to application is singleton.
+     * If you would like to ServiceInterface::replicate it then set it is true
+     *
      * @var array
      */
     private $services = [];
+
+    /**
+     * Service snapshot
+     *
+     * @var array
+     */
+    private $snapshot = [];
 
     /**
      * @var array
@@ -54,6 +63,10 @@ class ServiceRepository implements \ArrayAccess
             throw new ApplicationException('Services "' . $contract . '" is not registered');
         }
 
+        if (!empty($this->snapshot[$contract])) {
+            $this->offsetSet($contract, $this->snapshot[$contract]);
+        }
+
         /**
          * @var ServiceInterface $service
          */
@@ -79,14 +92,28 @@ class ServiceRepository implements \ArrayAccess
         }
 
         if (is_callable($service)) {
-            $service = $service($this->settings);
+            $object = $service($this->settings);
+        } else {
+            $object = $service;
         }
 
-        if ($service instanceof $contract) {
-            $this->services[$contract] = $service;
+        if ($object instanceof $contract) {
+
+            $this->services[$contract] = $object;
+
+            if (
+                $object instanceof ServiceInterface && $object->replicate()
+            ) {
+                if ($object->replicate() && empty($this->snapshot[$contract])) {
+                    $this->snapshot[$contract] = $service;
+                } elseif (!$object->replicate() && !empty($this->snapshot[$contract])) {
+                    unset($this->snapshot[$contract]);
+                }
+            }
+
         } else {
             throw new ApplicationException(
-                'Services "' . get_class($service) . '" must be implemented by ' . $this->services[$contract]
+                'Services "' . get_class($object) . '" must be implemented by ' . $this->services[$contract]
             );
         }
     }

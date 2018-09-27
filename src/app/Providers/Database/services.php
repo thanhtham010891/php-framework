@@ -7,6 +7,7 @@ use App\Providers\Database\Connection\PDOConnection;
 
 use App\Core\Contract\Database\QueryBuilderInterface;
 use App\Providers\Database\Builder\MysqlQueryBuilder;
+use App\Exceptions\ApplicationException;
 
 return [
 
@@ -17,7 +18,12 @@ return [
     /**
      * Support for Mysql now...
      */
-    QueryBuilderInterface::class => function () {
-        return new MysqlQueryBuilder();
+    QueryBuilderInterface::class => function ($settings) {
+
+        if (strtolower($settings['models']['driver']) === 'mysql') {
+            return new MysqlQueryBuilder();
+        }
+
+        throw new ApplicationException('Database driver not found!');
     }
 ];
