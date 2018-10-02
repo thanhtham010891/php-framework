@@ -2,20 +2,16 @@
 
 namespace App\Controllers;
 
-use App\Core\Controller;
-use App\Core\Contract\Controllers\WebInterface;
+use System\Controller;
 
-use App\Providers\View\Type\WebTrait;
-
-class IndexController extends Controller implements WebInterface
+class IndexController extends Controller
 {
-    use WebTrait;
 
+    /**
+     * Simple method
+     */
     public function index()
     {
-        return [
-            'render' => 'index.html',
-            'data' => ['name' => 'thamtt', 'email' => 'thamtt@gmail.com']
-        ];
+        echo 'Hello world';
     }
 }

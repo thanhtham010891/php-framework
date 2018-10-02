@@ -2,8 +2,8 @@
 
 namespace App\Providers\Database\Connection;
 
-use App\Core\Contract\Database\ConnectionInterface;
-use App\Exceptions\ApplicationException;
+use System\Contract\Database\ConnectionInterface;
+use System\BaseException;
 use PDO;
 use PDOException;
 
@@ -27,7 +27,7 @@ class PDOConnection implements ConnectionInterface
     }
 
     /**
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function openConnect()
     {
@@ -48,7 +48,7 @@ class PDOConnection implements ConnectionInterface
                 );
 
             } catch (PDOException $e) {
-                throw new ApplicationException($e->getMessage());
+                throw new BaseException($e->getMessage());
             }
         }
     }
@@ -83,7 +83,7 @@ class PDOConnection implements ConnectionInterface
      * @param string $fetchClass
      * @param array $fetchClassArgs
      * @return mixed
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function fetchOne($sql, array $params = [], $fetchClass = "", $fetchClassArgs = [])
     {
@@ -102,7 +102,7 @@ class PDOConnection implements ConnectionInterface
      * @param string $fetchClass
      * @param array $fetchClassArgs
      * @return array
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function fetchAll($sql, array $params = [], $fetchClass = "", $fetchClassArgs = [])
     {
@@ -119,14 +119,14 @@ class PDOConnection implements ConnectionInterface
      * @param string $sql
      * @param array $params
      * @return bool|\PDOStatement
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function execute($sql, array $params = [])
     {
         $stmt = $this->getResource()->prepare($sql);
 
         if (!$stmt->execute($params)) {
-            throw new ApplicationException(json_encode($stmt->errorInfo()));
+            throw new BaseException(json_encode($stmt->errorInfo()));
         }
 
         return $stmt;

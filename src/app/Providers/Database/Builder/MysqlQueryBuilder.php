@@ -2,8 +2,8 @@
 
 namespace App\Providers\Database\Builder;
 
-use App\Core\Contract\Database\QueryBuilderInterface;
-use App\Exceptions\ApplicationException;
+use System\Contract\Database\QueryBuilderInterface;
+use System\BaseException;
 
 class MysqlQueryBuilder implements QueryBuilderInterface
 {
@@ -11,12 +11,25 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @var array
      */
     private $queryFormat = [
-        'none_execute_query' => 'SELECT %fields% FROM %table% %join_conditions% WHERE %conditions% %group_by% %order_by% %limit%',
+        'none_execute_query' => 'SELECT %fields% FROM %table% %join_conditions% WHERE %conditions% %group_by% %order_by% %limit% %union%',
         'create' => 'INSERT INTO %table% (%fields%) VALUES(%values%)',
         'update' => 'UPDATE %table% SET %fields_values% WHERE %conditions%',
         'delete' => 'DELETE FROM %table% WHERE %conditions%',
         'truncate' => 'TRUNCATE %table%',
     ];
+
+    public function bootstrap()
+    {
+    }
+
+    public function terminate()
+    {
+    }
+
+    public function replicate()
+    {
+        return true;
+    }
 
     /**
      * @var array
@@ -33,6 +46,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
             'order_by' => [],
             'group_by' => [],
             'having' => [],
+            'union' => [],
             'limit' => '',
         ];
 
@@ -41,12 +55,12 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function getTable()
     {
         if (empty($this->queryResource['from'])) {
-            throw new ApplicationException('MysqlQueryBuilder: table is empty');
+            throw new BaseException('MysqlQueryBuilder: table is empty');
         }
 
         return $this->queryResource['from'];
@@ -129,11 +143,20 @@ class MysqlQueryBuilder implements QueryBuilderInterface
         return 'GROUP BY ' . implode(', ', $this->queryResource['group_by']) . ' ' . $having;
     }
 
+    public function getQueryUnion()
+    {
+        if (empty($this->queryResource['union'])) {
+            return '';
+        }
+
+        return implode(' ', $this->queryResource['union']);
+    }
+
     /**
      * @param array $fields
      * @param array $values
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildQueryCreate(array $fields, array $values)
     {
@@ -150,7 +173,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param array $fields
      * @param array $values
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildQueryUpdate(array $fields, array $values)
     {
@@ -169,7 +192,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildQueryDelete()
     {
@@ -181,7 +204,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildQueryTruncate()
     {
@@ -192,19 +215,20 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function buildExecuteNoneQuery()
     {
-        return strtr($this->queryFormat['none_execute_query'], [
+        return trim(strtr($this->queryFormat['none_execute_query'], [
             '%fields%' => $this->queryResource['select'],
             '%table%' => $this->getTable(),
             '%join_conditions%' => $this->getQueryJoins(),
             '%conditions%' => $this->getQueryConditions(),
             '%group_by%' => $this->getQueryGroupBy(),
             '%order_by%' => $this->getQueryOrderBy(),
-            '%limit%' => $this->getQueryLimit()
-        ]);
+            '%limit%' => $this->getQueryLimit(),
+            '%union%' => $this->getQueryUnion(),
+        ]));
     }
 
     /**
@@ -225,7 +249,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereEqual($field, $value, $and = true)
     {
@@ -239,7 +263,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereNotEqual($field, $value, $and = true)
     {
@@ -253,7 +277,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param array $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereIn($field, array $value, $and = true)
     {
@@ -267,7 +291,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param array $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereNotIn($field, array $value, $and = true)
     {
@@ -281,7 +305,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereLike($field, $value, $and = true)
     {
@@ -295,7 +319,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereNotLike($field, $value, $and = true)
     {
@@ -309,7 +333,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereRLike($field, $value, $and = true)
     {
@@ -323,7 +347,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereRNotLike($field, $value, $and = true)
     {
@@ -337,7 +361,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereMoreThan($field, $value, $and = true)
     {
@@ -351,7 +375,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function whereLessThan($field, $value, $and = true)
     {
@@ -365,9 +389,9 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
-    public function whereMoreOrEqualThan($field, $value, $and = true)
+    public function whereMoreOrEqual($field, $value, $and = true)
     {
         $this->_queryConditions($field, $value, '>=', $and ? 'AND' : 'OR');
 
@@ -379,9 +403,9 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
-    public function whereLessOrEqualThan($field, $value, $and = true)
+    public function whereLessOrEqual($field, $value, $and = true)
     {
         $this->_queryConditions($field, $value, '<=', $and ? 'AND' : 'OR');
 
@@ -390,36 +414,36 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @param QueryBuilderInterface|string $table
-     * @param QueryBuilderInterface $conditions
+     * @param QueryBuilderInterface $statement
      * @return $this|QueryBuilderInterface
      */
-    public function innerJoin($table, QueryBuilderInterface $conditions)
+    public function innerJoin($table, QueryBuilderInterface $statement)
     {
-        $this->_queryJoins($table, $conditions, 'INNER');
+        $this->_queryJoins($table, $statement, 'INNER');
 
         return $this;
     }
 
     /**
      * @param QueryBuilderInterface|string $table
-     * @param QueryBuilderInterface $conditions
+     * @param QueryBuilderInterface $statement
      * @return $this|QueryBuilderInterface
      */
-    public function leftJoin($table, QueryBuilderInterface $conditions)
+    public function leftJoin($table, QueryBuilderInterface $statement)
     {
-        $this->_queryJoins($table, $conditions, 'LEFT');
+        $this->_queryJoins($table, $statement, 'LEFT');
 
         return $this;
     }
 
     /**
      * @param QueryBuilderInterface|string $table
-     * @param QueryBuilderInterface $conditions
+     * @param QueryBuilderInterface $statement
      * @return $this|QueryBuilderInterface
      */
-    public function rightJoin($table, QueryBuilderInterface $conditions)
+    public function rightJoin($table, QueryBuilderInterface $statement)
     {
-        $this->_queryJoins($table, $conditions, 'RIGHT');
+        $this->_queryJoins($table, $statement, 'RIGHT');
 
         return $this;
     }
@@ -428,7 +452,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $fields
      * @param string $sort
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function orderBy($fields, $sort = 'DESC')
     {
@@ -440,7 +464,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     /**
      * @param $fields
      * @return $this|QueryBuilderInterface
-     * @throws ApplicationException
+     * @throws BaseException
      */
     public function groupBy($fields)
     {
@@ -450,12 +474,12 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     }
 
     /**
-     * @param QueryBuilderInterface $conditions
+     * @param QueryBuilderInterface $statement
      * @return $this|QueryBuilderInterface
      */
-    public function having(QueryBuilderInterface $conditions)
+    public function having(QueryBuilderInterface $statement)
     {
-        $this->queryResource['having'][] = $conditions->getQueryConditions();
+        $this->queryResource['having'][] = $statement->getQueryConditions();
 
         return $this;
     }
@@ -468,13 +492,25 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     public function limit($limit, $offset = 0)
     {
         $this->queryResource['limit'] = ['limit' => $limit, 'offset' => $offset];
+
+        return $this;
+    }
+
+    /**
+     * @param QueryBuilderInterface $statement
+     * @return QueryBuilderInterface|$this
+     */
+    public function union(QueryBuilderInterface $statement)
+    {
+        $this->queryResource['union'][] = 'UNION (' . $statement->buildExecuteNoneQuery() . ')';
+
         return $this;
     }
 
     /**
      * @param array $fields
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     private function _fieldsFormatToString(array $fields)
     {
@@ -484,7 +520,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     /**
      * @param array $fields
      * @return array
-     * @throws ApplicationException
+     * @throws BaseException
      */
     private function _fieldsFormatToArray(array $fields)
     {
@@ -495,7 +531,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
         return $fields;
     }
 
-    private function _queryJoins($table, QueryBuilderInterface $conditions, $leftInRight)
+    private function _queryJoins($table, QueryBuilderInterface $statement, $leftInRight)
     {
         if ($table instanceof QueryBuilderInterface) {
 
@@ -507,7 +543,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
         }
 
         $this->queryResource['join'][] = $leftInRight .
-            ' JOIN ' . $joinTable . ' ON (' . $conditions->getQueryConditions() . ')';
+            ' JOIN ' . $joinTable . ' ON (' . $statement->getQueryConditions() . ')';
     }
 
     /**
@@ -516,7 +552,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $operator
      * @param string $andOr
      * @return string
-     * @throws ApplicationException
+     * @throws BaseException
      */
     private function _queryConditions($field, $value, $operator, $andOr)
     {
