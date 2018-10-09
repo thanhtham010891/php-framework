@@ -5,14 +5,16 @@ namespace System\Contract\Database;
 interface DatabaseInterface
 {
     /**
+     * @param string $name
      * @param ConnectionInterface $connect
      */
-    public function setConnection(ConnectionInterface $connect);
+    public function setConnection($name = 'master', ConnectionInterface $connect);
 
     /**
+     * @param string $name
      * @return ConnectionInterface
      */
-    public function getConnection();
+    public function getConnection($name = 'master');
 
     /**
      * @return string

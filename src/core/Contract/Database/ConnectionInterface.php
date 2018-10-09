@@ -2,24 +2,25 @@
 
 namespace System\Contract\Database;
 
-use PDO;
-
 interface ConnectionInterface
 {
     /**
+     * @param string $name
      * @return void
      */
-    public function openConnect();
+    public function openConnect($name = 'default');
 
     /**
+     * @param string $name
      * @return void
      */
-    public function closeConnect();
+    public function closeConnect($name = 'default');
 
     /**
+     * @param string $name
      * @return void
      */
-    public function reConnect();
+    public function reConnect($name = 'default');
 
     /**
      * @return string

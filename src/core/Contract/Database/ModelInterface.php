@@ -5,9 +5,11 @@ namespace System\Contract\Database;
 interface ModelInterface
 {
     /**
+     * @var string $method
+     *
      * @return DatabaseInterface
      */
-    public function getDatabase();
+    public function getDatabase($method);
 
     /**
      * @return string

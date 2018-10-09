@@ -16,12 +16,21 @@ return [
     'models' => [
         'driver' => 'mysql',
 
-        'connection' => [
-            'hostname' => 'mysql.local',
-            'username' => 'root',
-            'password' => 'root',
-            'db_name' => 'test',
-            'options' => []
+        'connections' => [
+            'master' => [
+                'hostname' => 'mysql.local',
+                'username' => 'root',
+                'password' => 'root',
+                'db_name' => 'test',
+                'options' => []
+            ],
+            'slave' => [
+                'hostname' => 'mysql.local',
+                'username' => 'root',
+                'password' => 'root',
+                'db_name' => 'test',
+                'options' => []
+            ]
         ]
     ],
 ];

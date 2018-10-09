@@ -13,24 +13,41 @@ class Database implements DatabaseInterface
      */
     private $connection;
 
-    public function setConnection(ConnectionInterface $connect)
+    /**
+     * @var string
+     */
+    private $currentDatabase = 'master';
+
+    /**
+     * @param string $name
+     * @param ConnectionInterface $connect
+     */
+    public function setConnection($name = 'master', ConnectionInterface $connect)
     {
-        $this->connection = $connect;
+        $this->connection[$name] = $connect;
     }
 
     /**
+     * @param string $name
      * @return ConnectionInterface
      * @throws BaseException
      */
-    public function getConnection()
+    public function getConnection($name = 'master')
     {
-        if (empty($this->connection)) {
-            throw new BaseException('Database connection is empty');
+        if (empty($this->connection[$name])) {
+            throw new BaseException('Database connection `' . $name . '` is empty');
         }
 
-        $this->connection->openConnect();
+        /**
+         * @var ConnectionInterface $connection
+         */
+        $connection = $this->connection[$name];
 
-        return $this->connection;
+        $connection->openConnect();
+
+        $this->currentDatabase = $name;
+
+        return $connection;
     }
 
     /**
@@ -42,9 +59,11 @@ class Database implements DatabaseInterface
         return $this->getConnection()->getDatabaseName();
     }
 
-    public function __construct(ConnectionInterface $connection)
+    public function __construct(ConnectionInterface $connection = null)
     {
-        $this->setConnection($connection);
+        if (!empty($connection)) {
+            $this->setConnection('master', $connection);
+        }
     }
 
     /**
@@ -56,7 +75,7 @@ class Database implements DatabaseInterface
      */
     public function fetchOne($sql, array $params = [], $fetchClass = "")
     {
-        return $this->getConnection()->fetchOne($sql, $params, $fetchClass, []);
+        return $this->getConnection($this->currentDatabase)->fetchOne($sql, $params, $fetchClass, []);
     }
 
     /**
@@ -68,7 +87,7 @@ class Database implements DatabaseInterface
      */
     public function fetchAll($sql, array $params = [], $fetchClass = "")
     {
-        return $this->getConnection()->fetchAll($sql, $params, $fetchClass, []);
+        return $this->getConnection($this->currentDatabase)->fetchAll($sql, $params, $fetchClass, []);
     }
 
     /**
@@ -79,6 +98,6 @@ class Database implements DatabaseInterface
      */
     public function execute($sql, array $params = [])
     {
-        return $this->getConnection()->execute($sql, $params);
+        return $this->getConnection($this->currentDatabase)->execute($sql, $params);
     }
 }

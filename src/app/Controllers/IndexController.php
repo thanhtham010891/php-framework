@@ -39,15 +39,17 @@ class IndexController extends Controller
 
         $user->setQueryBuilder($this->services[QueryBuilderInterface::class]);
 
-        $post = new Post();
-
-        $post->setQueryBuilder($this->services[QueryBuilderInterface::class]);
-
-        echo $user->getQueryBuilder()->buildExecuteNoneQuery(), '<br>';
+        echo '<pre>';
 
         print_r(
-            $post->getQueryBuilder()->buildExecuteNoneQuery()
+            $user->findById(1)
         );
+
+//        $post = new Post();
+//
+//        $post->setQueryBuilder($this->services[QueryBuilderInterface::class]);
+//
+//        echo $user->getQueryBuilder()->buildExecuteNoneQuery(), '<br>';
 
     }
 }

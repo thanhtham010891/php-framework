@@ -16,9 +16,18 @@ return [
     ResponseInterface::class => new \App\Providers\Http\Response(),
 
     DatabaseInterface::class => function ($settings) {
-        return new App\Providers\Database\Database(
-            new \App\Providers\Database\Connection\PDOConnection($settings['models']['connection'])
+
+        $db = new App\Providers\Database\Database();
+
+        $db->setConnection(
+            'master', new \App\Providers\Database\Connection\PDOConnection($settings['models']['connections']['master'])
         );
+
+        $db->setConnection(
+            'slave', new \App\Providers\Database\Connection\PDOConnection($settings['models']['connections']['slave'])
+        );
+
+        return $db;
     },
 
     /**

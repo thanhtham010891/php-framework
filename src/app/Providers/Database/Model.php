@@ -32,6 +32,23 @@ abstract class Model implements ModelInterface
         'columns' => []
     ];
 
+    private $executeDBState = [
+
+        /**
+         * Slave group
+         */
+        'App\Providers\Database\Model::fetchOne' => 'slave',
+        'App\Providers\Database\Model::fetchAll' => 'slave',
+
+        /**
+         * Master group
+         */
+        'App\Providers\Database\Model::create' => 'master',
+        'App\Providers\Database\Model::update' => 'master',
+        'App\Providers\Database\Model::delete' => 'master',
+        'App\Providers\Database\Model::truncate' => 'master',
+    ];
+
     /**
      * @var QueryBuilderInterface
      */
@@ -51,11 +68,19 @@ abstract class Model implements ModelInterface
     }
 
     /**
+     * @var string $method
+     *
      * @return DatabaseInterface
      */
-    final public function getDatabase()
+    final public function getDatabase($method)
     {
-        return self::$database;
+        $db = self::$database;
+
+        if (!empty($this->executeDBState[$method])) {
+            $db->getConnection($this->executeDBState[$method]);
+        }
+
+        return $db;
     }
 
     /**
@@ -119,7 +144,7 @@ abstract class Model implements ModelInterface
     {
         list($fields, $values, $alias) = $this->_parseFieldsValue($data);
 
-        return $this->getDatabase()->execute(
+        return $this->getDatabase(__METHOD__)->execute(
             $this->getQueryBuilder()->buildQueryCreate($fields, $alias), $values
         );
     }
@@ -133,7 +158,7 @@ abstract class Model implements ModelInterface
     {
         list($fields, $values, $alias) = $this->_parseFieldsValue($data);
 
-        return $this->getDatabase()->execute(
+        return $this->getDatabase(__METHOD__)->execute(
             $this->getQueryBuilder()->buildQueryUpdate($fields, $alias), $values
         );
     }
@@ -145,7 +170,7 @@ abstract class Model implements ModelInterface
      */
     final public function delete()
     {
-        return $this->getDatabase()->execute(
+        return $this->getDatabase(__METHOD__)->execute(
             $this->getQueryBuilder()->buildQueryDelete()
         );
     }
@@ -155,7 +180,7 @@ abstract class Model implements ModelInterface
      */
     final public function truncate()
     {
-        return $this->getDatabase()->execute(
+        return $this->getDatabase(__METHOD__)->execute(
             $this->getQueryBuilder()->buildQueryTruncate()
         );
     }
@@ -166,7 +191,7 @@ abstract class Model implements ModelInterface
      */
     final public function fetchOne(array $args = [])
     {
-        return $this->getDatabase()->fetchOne(
+        return $this->getDatabase(__METHOD__)->fetchOne(
             $this->getQueryBuilder()->buildExecuteNoneQuery(), $args, get_class($this)
         );
     }
@@ -177,7 +202,7 @@ abstract class Model implements ModelInterface
      */
     final public function fetchAll(array $args = [])
     {
-        return $this->getDatabase()->fetchAll(
+        return $this->getDatabase(__METHOD__)->fetchAll(
             $this->getQueryBuilder()->buildExecuteNoneQuery(), $args, get_class($this)
         );
     }
