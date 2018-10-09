@@ -3,12 +3,10 @@ define('__ROOT__', dirname(__DIR__));
 
 
 use System\Application;
-use System\BaseException;
 
 require_once __ROOT__ . '/vendor/autoload.php';
 
 try {
-
     /**
      * Init application
      * Should be set instance of app for helpers
@@ -36,7 +34,5 @@ try {
      * Terminate all services
      */
     $app->terminateServiceProvider();
-
-} catch (BaseException $e) {
-    Application::instance()->catchErrors($e);
+} catch (Exception $e) {
 }

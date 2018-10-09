@@ -2,6 +2,8 @@
 
 namespace System;
 
+use Exception;
+
 use System\Contract\Http\RouteInterface;
 use System\Contract\ServiceInterface;
 
@@ -176,8 +178,11 @@ class Application
     public function runHttp()
     {
         if ($this->isDevelopMode()) {
+
             ini_set('display_errors', true);
             ini_set('error_reporting', E_ALL);
+
+            set_exception_handler([$this, 'catchException']);
         }
 
         /**
@@ -256,14 +261,19 @@ class Application
         }
     }
 
-    public function catchErrors(BaseException $e)
+    /**
+     * @param $e
+     */
+    public function catchException($e)
     {
+        /**
+         * @var Exception $e
+         */
         if ($this->isDevelopMode()) {
-            echo 'Errors: ' . $e->getMessage();
+            echo get_class($e) . ': ' . $e->getMessage();
             echo '<pre>', $e->getTraceAsString(), '</pre>';
         } else {
-            echo 'Errors!';
+            echo 'Error!';
         }
     }
-
 }

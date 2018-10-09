@@ -4,7 +4,7 @@ namespace App\Providers\Database;
 
 use System\Contract\Database\ConnectionInterface;
 use System\Contract\Database\DatabaseInterface;
-use System\BaseException;
+use App\Providers\Database\Connection\ConnectionException;
 
 class Database implements DatabaseInterface
 {
@@ -30,12 +30,12 @@ class Database implements DatabaseInterface
     /**
      * @param string $name
      * @return ConnectionInterface
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function getConnection($name = 'master')
     {
         if (empty($this->connection[$name])) {
-            throw new BaseException('Database connection `' . $name . '` is empty');
+            throw new ConnectionException('Connection `' . $name . '` is empty');
         }
 
         /**
@@ -52,7 +52,7 @@ class Database implements DatabaseInterface
 
     /**
      * @return string
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function getDatabaseName()
     {
@@ -71,7 +71,7 @@ class Database implements DatabaseInterface
      * @param array $params
      * @param string $fetchClass
      * @return mixed|\Object
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function fetchOne($sql, array $params = [], $fetchClass = "")
     {
@@ -83,7 +83,7 @@ class Database implements DatabaseInterface
      * @param array $params
      * @param string $fetchClass
      * @return array
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function fetchAll($sql, array $params = [], $fetchClass = "")
     {
@@ -94,7 +94,7 @@ class Database implements DatabaseInterface
      * @param string $sql
      * @param array $params
      * @return bool
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function execute($sql, array $params = [])
     {

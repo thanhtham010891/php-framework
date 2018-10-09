@@ -3,7 +3,6 @@
 namespace App\Providers\Database\Builder;
 
 use System\Contract\Database\QueryBuilderInterface;
-use System\BaseException;
 
 class MysqlQueryBuilder implements QueryBuilderInterface
 {
@@ -55,12 +54,12 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @return string
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function getTable()
     {
         if (empty($this->queryResource['from'])) {
-            throw new BaseException('MysqlQueryBuilder: table is empty');
+            throw new BuilderException('Table is empty');
         }
 
         return $this->queryResource['from'];
@@ -156,7 +155,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param array $fields
      * @param array $values
      * @return string
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function buildQueryCreate(array $fields, array $values)
     {
@@ -173,7 +172,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param array $fields
      * @param array $values
      * @return string
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function buildQueryUpdate(array $fields, array $values)
     {
@@ -192,7 +191,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @return string
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function buildQueryDelete()
     {
@@ -204,7 +203,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @return string
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function buildQueryTruncate()
     {
@@ -215,7 +214,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
 
     /**
      * @return string
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function buildExecuteNoneQuery()
     {
@@ -249,7 +248,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereEqual($field, $value, $and = true)
     {
@@ -263,7 +262,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereNotEqual($field, $value, $and = true)
     {
@@ -277,7 +276,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param array $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereIn($field, array $value, $and = true)
     {
@@ -291,7 +290,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param array $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereNotIn($field, array $value, $and = true)
     {
@@ -305,7 +304,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereLike($field, $value, $and = true)
     {
@@ -319,7 +318,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereNotLike($field, $value, $and = true)
     {
@@ -333,7 +332,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereRLike($field, $value, $and = true)
     {
@@ -347,7 +346,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereRNotLike($field, $value, $and = true)
     {
@@ -361,7 +360,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereMoreThan($field, $value, $and = true)
     {
@@ -375,7 +374,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereLessThan($field, $value, $and = true)
     {
@@ -389,7 +388,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereMoreOrEqual($field, $value, $and = true)
     {
@@ -403,7 +402,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $value
      * @param bool $and
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function whereLessOrEqual($field, $value, $and = true)
     {
@@ -452,7 +451,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $fields
      * @param string $sort
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function orderBy($fields, $sort = 'DESC')
     {
@@ -464,7 +463,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     /**
      * @param $fields
      * @return $this|QueryBuilderInterface
-     * @throws BaseException
+     * @throws BuilderException
      */
     public function groupBy($fields)
     {
@@ -510,7 +509,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     /**
      * @param array $fields
      * @return string
-     * @throws BaseException
+     * @throws BuilderException
      */
     private function _fieldsFormatToString(array $fields)
     {
@@ -520,7 +519,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
     /**
      * @param array $fields
      * @return array
-     * @throws BaseException
+     * @throws BuilderException
      */
     private function _fieldsFormatToArray(array $fields)
     {
@@ -552,7 +551,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @param string $operator
      * @param string $andOr
      * @return string
-     * @throws BaseException
+     * @throws BuilderException
      */
     private function _queryConditions($field, $value, $operator, $andOr)
     {

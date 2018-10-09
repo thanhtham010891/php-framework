@@ -3,7 +3,6 @@
 namespace App\Providers\Database\Connection;
 
 use System\Contract\Database\ConnectionInterface;
-use System\BaseException;
 use PDO;
 use PDOException;
 
@@ -35,7 +34,7 @@ class PDOConnection implements ConnectionInterface
 
     /**
      * @param string $name
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function openConnect($name = 'default')
     {
@@ -59,7 +58,7 @@ class PDOConnection implements ConnectionInterface
                 $this->currentConnectionName = $name;
 
             } catch (PDOException $e) {
-                throw new BaseException($e->getMessage());
+                throw new ConnectionException('Open connect is lost: ' . $e->getMessage());
             }
         }
     }
@@ -79,7 +78,7 @@ class PDOConnection implements ConnectionInterface
 
     /**
      * @param string $name
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function reConnect($name = 'default')
     {
@@ -99,7 +98,7 @@ class PDOConnection implements ConnectionInterface
      * @param string $fetchClass
      * @param array $fetchClassArgs
      * @return mixed
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function fetchOne($sql, array $params = [], $fetchClass = "", $fetchClassArgs = [])
     {
@@ -118,7 +117,7 @@ class PDOConnection implements ConnectionInterface
      * @param string $fetchClass
      * @param array $fetchClassArgs
      * @return array
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function fetchAll($sql, array $params = [], $fetchClass = "", $fetchClassArgs = [])
     {
@@ -135,7 +134,7 @@ class PDOConnection implements ConnectionInterface
      * @param string $sql
      * @param array $params
      * @return bool|\PDOStatement
-     * @throws BaseException
+     * @throws ConnectionException
      */
     public function execute($sql, array $params = [])
     {
@@ -147,7 +146,7 @@ class PDOConnection implements ConnectionInterface
         $stmt = $connection->prepare($sql);
 
         if (!$stmt->execute($params)) {
-            throw new BaseException(json_encode($stmt->errorInfo()));
+            throw new ConnectionException('Execute query: ' . json_encode($stmt->errorInfo()));
         }
 
         return $stmt;

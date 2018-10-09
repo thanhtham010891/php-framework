@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\Post;
 use App\Models\User;
 use App\Providers\Database\Model;
 use System\Contract\Database\DatabaseInterface;
