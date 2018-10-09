@@ -2,9 +2,7 @@
 
 namespace System\Contract\Database;
 
-use System\Contract\ServiceInterface;
-
-interface DatabaseInterface extends ServiceInterface
+interface DatabaseInterface
 {
     /**
      * @param ConnectionInterface $connect
@@ -25,7 +23,7 @@ interface DatabaseInterface extends ServiceInterface
      * @param string $sql
      * @param array $params
      * @param string $fetchClass
-     * @return Object
+     * @return \Object
      */
     public function fetchOne($sql, array $params = [], $fetchClass = "");
 

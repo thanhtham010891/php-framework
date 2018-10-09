@@ -17,9 +17,16 @@ class PDOConnection implements ConnectionInterface
     private $settings;
 
     /**
-     * @var PDO
+     * @var string
      */
-    private $connection;
+    private $currentConnectionName = 'default';
+
+    /**
+     * @var array
+     */
+    private $connection = [
+        'default' => null
+    ];
 
     public function __construct($settings)
     {
@@ -27,11 +34,13 @@ class PDOConnection implements ConnectionInterface
     }
 
     /**
+     * @param string $name
      * @throws BaseException
      */
-    public function openConnect()
+    public function openConnect($name = 'default')
     {
-        if (empty($this->connection)) {
+        if (empty($this->connection[$name])) {
+
             if (!empty($this->settings['charset'])) {
                 $charset = 'charset=' . $this->settings['charset'];
             } else {
@@ -42,10 +51,12 @@ class PDOConnection implements ConnectionInterface
 
             try {
 
-                $this->connection = new PDO(
+                $this->connection[$name] = new PDO(
                     'mysql:host=' . $this->settings['hostname'] . ';dbname=' . $this->settings['db_name'] . ';' . $charset,
                     $this->settings['username'], $this->settings['password'], $this->settings['options']
                 );
+
+                $this->currentConnectionName = $name;
 
             } catch (PDOException $e) {
                 throw new BaseException($e->getMessage());
@@ -54,22 +65,27 @@ class PDOConnection implements ConnectionInterface
     }
 
     /**
+     * @param string $name
+     *
      * The connection remains active for the lifetime of that PDO object.
      * To close the connection, you need to destroy the object by ensuring that all remaining references
      * to it are deleted--you do this by assigning NULL to the variable that holds the object.
      * If you don't do this explicitly, PHP will automatically close the connection when your script ends.
      */
-    public function closeConnect()
+    public function closeConnect($name = 'default')
     {
-        $this->connection = null;
+        $this->connection[$name] = null;
     }
 
     /**
-     * @return PDO
+     * @param string $name
+     * @throws BaseException
      */
-    public function getResource()
+    public function reConnect($name = 'default')
     {
-        return $this->connection;
+        $this->closeConnect($name);
+
+        $this->openConnect($name);
     }
 
     public function getDatabaseName()
@@ -123,7 +139,12 @@ class PDOConnection implements ConnectionInterface
      */
     public function execute($sql, array $params = [])
     {
-        $stmt = $this->getResource()->prepare($sql);
+        /**
+         * @var PDO $connection
+         */
+        $connection = $this->connection[$this->currentConnectionName];
+
+        $stmt = $connection->prepare($sql);
 
         if (!$stmt->execute($params)) {
             throw new BaseException(json_encode($stmt->errorInfo()));

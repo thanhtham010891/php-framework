@@ -33,35 +33,21 @@ abstract class Model implements ModelInterface
     ];
 
     /**
+     * @var QueryBuilderInterface
+     */
+    protected $builder;
+
+    /**
      * @var DatabaseInterface
      */
     private static $database;
 
     /**
-     * @var QueryBuilderInterface
-     */
-    private static $builder;
-
-    /**
      * @param DatabaseInterface $database
-     * @param QueryBuilderInterface $builder
      */
-    final public static function registerGlobals(DatabaseInterface $database, QueryBuilderInterface $builder)
+    final public static function registerGlobals(DatabaseInterface $database)
     {
         self::$database = $database;
-
-        self::$builder = $builder;
-
-        self::$builder->clearQueryResource();
-    }
-
-    public function __construct($tableName = '')
-    {
-        if (empty($tableName)) {
-            $tableName = $this->getTable();
-        }
-
-        $this->getQueryBuilder()->table($tableName);
     }
 
     /**
@@ -73,11 +59,23 @@ abstract class Model implements ModelInterface
     }
 
     /**
+     * @param QueryBuilderInterface $builder
+     */
+    final public function setQueryBuilder(QueryBuilderInterface $builder)
+    {
+        $this->builder = $builder;
+
+        $this->builder->clearQueryResource();
+
+        $this->builder->table($this->getTable());
+    }
+
+    /**
      * @return QueryBuilderInterface
      */
     final public function getQueryBuilder()
     {
-        return self::$builder;
+        return $this->builder;
     }
 
     /**
@@ -164,7 +162,7 @@ abstract class Model implements ModelInterface
 
     /**
      * @param array $args
-     * @return Object
+     * @return \Object
      */
     final public function fetchOne(array $args = [])
     {
@@ -175,7 +173,7 @@ abstract class Model implements ModelInterface
 
     /**
      * @param array $args
-     * @return array
+     * @return array|mixed
      */
     final public function fetchAll(array $args = [])
     {
@@ -186,7 +184,7 @@ abstract class Model implements ModelInterface
 
     /**
      * @param $id
-     * @return bool|object
+     * @return bool|\Object
      */
     final public function findById($id)
     {

@@ -3,18 +3,15 @@
 use App\Controllers\IndexController;
 
 
-return [
-    '/' => [
-        'controller' => IndexController::class, 'method' => 'index', 'args' => [
-            'test' => 'hello world'
-        ]
-    ],
+$this->get('/', [
+    'controller' => IndexController::class, 'method' => 'index'
+]);
 
-    '/regex/([0-9]+)/edit/([a-z]+).html' => [
-        'controller' => IndexController::class, 'method' => 'regex'
-    ],
+$this->get('/regex/([0-9]+)/edit/([a-z]+).html', [
+    'controller' => IndexController::class, 'method' => 'index'
+]);
 
-    '/db' => [
-        'controller' => IndexController::class, 'method' => 'db'
-    ]
-];
+
+$this->get('/db', [
+    'controller' => IndexController::class, 'method' => 'db'
+]);

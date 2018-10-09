@@ -72,7 +72,7 @@ class ServiceRepository implements \ArrayAccess
         $service = $this->services[$contract];
 
         if ($service instanceof ServiceInterface && !in_array($contract, $this->alreadyBooted)) {
-            $this->alreadyBooted[] = $contract;
+            $this->alreadyBooted[$contract] = $contract;
             $service->bootstrap();
         }
 
@@ -100,20 +100,23 @@ class ServiceRepository implements \ArrayAccess
 
             $this->services[$contract] = $object;
 
-            if (
-                $object instanceof ServiceInterface && $object->replicate()
-            ) {
-                if ($object->replicate() && empty($this->snapshot[$contract])) {
-                    $this->snapshot[$contract] = $service;
-                } elseif (!$object->replicate() && !empty($this->snapshot[$contract])) {
-                    unset($this->snapshot[$contract]);
-                }
-            }
-
         } else {
             throw new BaseException(
                 'Services "' . get_class($object) . '" must be implemented by ' . $this->services[$contract]
             );
+        }
+
+        if (
+            $object instanceof ServiceInterface && $object->replicate()
+        ) {
+
+            $this->snapshot[$contract] = $service;
+            unset($this->alreadyBooted[$contract]);
+
+        } elseif (
+            $object instanceof ServiceInterface && !$object->replicate()
+        ) {
+            unset($this->snapshot[$contract]);
         }
     }
 

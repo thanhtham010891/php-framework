@@ -15,6 +15,16 @@ class Request implements RequestInterface
         $this->symfonyRequest = SymfonyRequest::createFromGlobals();
     }
 
+    public function isRequestGet()
+    {
+        return $this->symfonyRequest->isMethod('GET');
+    }
+
+    public function isRequestPost()
+    {
+        return $this->symfonyRequest->isMethod('POST');
+    }
+
     public function getAllQueryParam()
     {
         return $this->symfonyRequest->query->all();

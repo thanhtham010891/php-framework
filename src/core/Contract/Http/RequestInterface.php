@@ -7,6 +7,16 @@ interface RequestInterface
 {
 
     /**
+     * @return bool
+     */
+    public function isRequestPost();
+
+    /**
+     * @return bool
+     */
+    public function isRequestGet();
+
+    /**
      * http://test.local/hello?world=123 -> hello
      * @return string
      */

@@ -17,9 +17,9 @@ interface ConnectionInterface
     public function closeConnect();
 
     /**
-     * @return PDO
+     * @return void
      */
-    public function getResource();
+    public function reConnect();
 
     /**
      * @return string

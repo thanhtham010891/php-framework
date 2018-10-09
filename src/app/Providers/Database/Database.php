@@ -28,9 +28,7 @@ class Database implements DatabaseInterface
             throw new BaseException('Database connection is empty');
         }
 
-        if (empty($this->connection->getResource())) {
-            $this->connection->openConnect();
-        }
+        $this->connection->openConnect();
 
         return $this->connection;
     }
@@ -49,28 +47,11 @@ class Database implements DatabaseInterface
         $this->setConnection($connection);
     }
 
-    public function bootstrap()
-    {
-    }
-
-    /**
-     * @throws BaseException
-     */
-    public function terminate()
-    {
-        $this->getConnection()->closeConnect();
-    }
-
-    public function replicate()
-    {
-        return false;
-    }
-
     /**
      * @param string $sql
      * @param array $params
      * @param string $fetchClass
-     * @return mixed|Object
+     * @return mixed|\Object
      * @throws BaseException
      */
     public function fetchOne($sql, array $params = [], $fetchClass = "")

@@ -16,12 +16,56 @@ class RouteCollection implements RouteCollectionInterface
     private $route = [];
 
     /**
-     * @return array|mixed
-     * @throws BaseException
+     * @var array
      */
-    public function getResources()
+    private $getResource = [];
+
+    /**
+     * @var array
+     */
+    private $postResource = [];
+
+
+    /**
+     * @param string $path
+     * @param array|string $resource
+     * @return $this|RouteCollectionInterface
+     */
+    public function get($path, $resource)
     {
-        return require_path(app_path() . 'routes.php');
+        $this->registerRoute('GET', $path, $resource);
+
+        return $this;
+    }
+
+    /**
+     * @param string $path
+     * @param array|string $resource
+     * @return $this|RouteCollectionInterface
+     */
+    public function post($path, $resource)
+    {
+        $this->registerRoute('POST', $path, $resource);
+
+        return $this;
+    }
+
+    /**
+     * @param string $method
+     * @param string $path
+     * @param array|string $resource
+     */
+    public function registerRoute($method, $path, $resource)
+    {
+        $method = strtoupper($method);
+
+        $path = '/' . trim($path, '/');
+
+        if ($method === 'GET') {
+            $this->getResource[$path] = $resource;
+        } elseif ($method === 'POST') {
+            $this->postResource[$path] = $resource;
+        }
     }
 
     /**
@@ -31,11 +75,17 @@ class RouteCollection implements RouteCollectionInterface
      */
     public function getRoute(RequestInterface $request)
     {
+        require_once(app_path() . 'routes.php');
+
+        if ($request->isRequestPost()) {
+            $routes = $this->postResource;
+        } else {
+            $routes = $this->getResource;
+        }
+
         $args = [];
 
         $path = '/' . trim($request->getPath(), '/');
-
-        $routes = $this->getResources();
 
         if (!empty($routes[$path])) {
 

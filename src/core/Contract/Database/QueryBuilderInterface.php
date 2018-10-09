@@ -6,7 +6,6 @@ use System\Contract\ServiceInterface;
 
 interface QueryBuilderInterface extends ServiceInterface
 {
-
     /**
      * @return $this
      */

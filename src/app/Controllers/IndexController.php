@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Post;
 use App\Models\User;
 use App\Providers\Database\Model;
 use System\Contract\Database\DatabaseInterface;
@@ -32,12 +33,21 @@ class IndexController extends Controller
 
     public function db()
     {
-        Model::registerGlobals($this->services[DatabaseInterface::class], $this->services[QueryBuilderInterface::class]);
+        Model::registerGlobals($this->services[DatabaseInterface::class]);
 
         $user = new User();
 
-        echo '<pre>', print_r(
-            $user->findById(1)
+        $user->setQueryBuilder($this->services[QueryBuilderInterface::class]);
+
+        $post = new Post();
+
+        $post->setQueryBuilder($this->services[QueryBuilderInterface::class]);
+
+        echo $user->getQueryBuilder()->buildExecuteNoneQuery(), '<br>';
+
+        print_r(
+            $post->getQueryBuilder()->buildExecuteNoneQuery()
         );
+
     }
 }
