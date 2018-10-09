@@ -2,7 +2,7 @@
 
 namespace App\Providers\Http;
 
-use System\BaseException;
+use App\Providers\Http\Exception\RouteException;
 
 use System\Contract\Http\RequestInterface;
 use System\Contract\Http\RouteCollectionInterface;
@@ -71,7 +71,7 @@ class RouteCollection implements RouteCollectionInterface
     /**
      * @param RequestInterface $request
      * @return RouteInterface
-     * @throws BaseException
+     * @throws RouteException
      */
     public function getRoute(RequestInterface $request)
     {
@@ -109,19 +109,19 @@ class RouteCollection implements RouteCollectionInterface
         }
 
         if (!is_array($this->route)) {
-            throw new BaseException('Route item must be an array');
+            throw new RouteException('Route item must be an array');
         }
 
         if (empty($this->route['controller'])) {
-            throw new BaseException('Route item[controller] is required');
+            throw new RouteException('Route item[controller] is required');
         }
 
         if (!class_exists($this->route['controller'])) {
-            throw new BaseException('Controller "' . $this->route['controller'] . '" does not exist');
+            throw new RouteException('Controller "' . $this->route['controller'] . '" does not exist');
         }
 
         if (empty($this->route['method'])) {
-            throw new BaseException('Route item[method] is required');
+            throw new RouteException('Route item[method] is required');
         }
 
         if (!empty($args[1])) {
