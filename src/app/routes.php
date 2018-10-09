@@ -5,7 +5,16 @@ use App\Controllers\IndexController;
 
 return [
     '/' => [
-        'controller' => IndexController::class, 'method' => 'index', 'args' => []
+        'controller' => IndexController::class, 'method' => 'index', 'args' => [
+            'test' => 'hello world'
+        ]
     ],
-    '/test.html' => view_path() . 'index.html'
+
+    '/regex/([0-9]+)/edit/([a-z]+).html' => [
+        'controller' => IndexController::class, 'method' => 'regex'
+    ],
+
+    '/db' => [
+        'controller' => IndexController::class, 'method' => 'db'
+    ]
 ];

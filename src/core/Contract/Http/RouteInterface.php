@@ -4,24 +4,29 @@ namespace System\Contract\Http;
 
 interface RouteInterface
 {
-    /**
-     * @return array
-     */
-    public function getResource();
 
     /**
-     * @param RequestInterface $request
-     * @return array
+     * @return string
      */
-    public function getControllerResource(RequestInterface $request);
+    public function getName();
 
     /**
-     * @param string|array $notFoundResource
+     * @return string
      */
-    public function setNotFoundResource($notFoundResource);
+    public function getRequire();
 
     /**
-     * @return string|array
+     * @return mixed
      */
-    public function getNotFoundResource();
+    public function getController();
+
+    /**
+     * @return string
+     */
+    public function getMethod();
+
+    /**
+     * @param array
+     */
+    public function getParams();
 }

@@ -5,15 +5,6 @@ namespace System\Contract\Database;
 interface ModelInterface
 {
     /**
-     * Set database connection, QueryBuilder
-     *
-     * @param DatabaseInterface $database
-     * @param QueryBuilderInterface $builder
-     * @return void
-     */
-    public function bootstrap(DatabaseInterface $database, QueryBuilderInterface $builder);
-
-    /**
      * @return DatabaseInterface
      */
     public function getDatabase();

@@ -35,26 +35,33 @@ abstract class Model implements ModelInterface
     /**
      * @var DatabaseInterface
      */
-    private $_database;
+    private static $database;
 
     /**
      * @var QueryBuilderInterface
      */
-    private $_builder;
+    private static $builder;
 
     /**
      * @param DatabaseInterface $database
      * @param QueryBuilderInterface $builder
      */
-    final public function bootstrap(DatabaseInterface $database, QueryBuilderInterface $builder)
+    final public static function registerGlobals(DatabaseInterface $database, QueryBuilderInterface $builder)
     {
-        $this->_database = $database;
+        self::$database = $database;
 
-        $this->_builder = $builder;
+        self::$builder = $builder;
 
-        $this->_builder->clearQueryResource();
+        self::$builder->clearQueryResource();
+    }
 
-        $this->_builder->table($this->getTable());
+    public function __construct($tableName = '')
+    {
+        if (empty($tableName)) {
+            $tableName = $this->getTable();
+        }
+
+        $this->getQueryBuilder()->table($tableName);
     }
 
     /**
@@ -62,7 +69,15 @@ abstract class Model implements ModelInterface
      */
     final public function getDatabase()
     {
-        return $this->_database;
+        return self::$database;
+    }
+
+    /**
+     * @return QueryBuilderInterface
+     */
+    final public function getQueryBuilder()
+    {
+        return self::$builder;
     }
 
     /**
@@ -178,14 +193,6 @@ abstract class Model implements ModelInterface
         $this->getQueryBuilder()->whereEqual($this->getPrimaryKey(), '?');
 
         return $this->fetchOne([$id]);
-    }
-
-    /**
-     * @return QueryBuilderInterface
-     */
-    final public function getQueryBuilder()
-    {
-        return $this->_builder;
     }
 
     /**

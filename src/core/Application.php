@@ -2,9 +2,10 @@
 
 namespace System;
 
+use System\Contract\Http\RouteInterface;
 use System\Contract\ServiceInterface;
 
-use System\Contract\Http\RouteInterface;
+use System\Contract\Http\RouteCollectionInterface;
 use System\Contract\Http\RequestInterface;
 
 use System\Contract\Controllers\ApiInterface;
@@ -157,81 +158,6 @@ class Application
     }
 
     /**
-     * @throws BaseException
-     */
-    public function run()
-    {
-        if ($this->isDevelopMode()) {
-            ini_set('display_errors', true);
-            ini_set('error_reporting', E_ALL);
-        }
-
-        $this->_registerServiceProvider();
-
-        /**
-         * @var RouteInterface $route
-         */
-        $route = $this->getService(RouteInterface::class);
-
-        $controllerResources = $route->getControllerResource(
-            $this->getService(RequestInterface::class)
-        );
-
-        if (empty($controllerResources)) {
-
-            throw new BaseException('Controller resource is not registered');
-        }
-
-        /**
-         * Using for require static page or restart new an another application
-         */
-        if (isset($controllerResources['require'])) {
-
-            $this->_terminateAllService();
-
-            require_path($controllerResources['require']);
-
-            exit;
-        }
-
-        /**
-         * Bootstrap controller
-         */
-        $controllerObject = new $controllerResources['controller'];
-
-        if ($controllerObject instanceof DispatchInterface) {
-            $controllerObject->dispatch($this->services);
-        }
-
-        /**
-         * Controller is running
-         */
-        $responseData = call_user_func_array(
-            [$controllerObject, $controllerResources['method']], $controllerResources['args']
-        );
-
-        if ($controllerObject instanceof WebInterface) {
-            $controllerObject->render((array)$responseData);
-        } elseif ($controllerObject instanceof ApiInterface) {
-            $controllerObject->send();
-        }
-
-        unset($controllerObject, $controllerResources);
-
-        $this->_terminateAllService();
-    }
-
-    public function errors(BaseException $e)
-    {
-        if ($this->isDevelopMode()) {
-            echo 'Errors: ' . $e->getMessage();
-            echo '<pre>', $e->getTraceAsString(), '</pre>';
-        } else {
-            echo 'Errors!';
-        }
-    }
-
-    /**
      * @param Application $app
      * @return Application
      */
@@ -247,7 +173,62 @@ class Application
     /**
      * @throws BaseException
      */
-    private function _registerServiceProvider()
+    public function runHttp()
+    {
+        if ($this->isDevelopMode()) {
+            ini_set('display_errors', true);
+            ini_set('error_reporting', E_ALL);
+        }
+
+        /**
+         * @var RouteCollectionInterface $routeCollection
+         * @var RouteInterface $route
+         */
+        $routeCollection = $this->getService(RouteCollectionInterface::class);
+
+        $route = $routeCollection->getRoute(
+            $this->getService(RequestInterface::class)
+        );
+
+        /**
+         * Using for require static page or restart new an another application
+         */
+        if ($route->getRequire()) {
+
+            $this->terminateServiceProvider();
+
+            require_path($route->getRequire());
+
+            exit;
+        }
+
+        /**
+         * Bootstrap controller
+         */
+        $controllerObject = $route->getController();
+
+        if ($controllerObject instanceof DispatchInterface) {
+            $controllerObject->dispatch($this->services);
+        }
+
+        /**
+         * Controller is running
+         */
+        $responseData = call_user_func_array(
+            [$controllerObject, $route->getMethod()], $route->getParams()
+        );
+
+        if ($controllerObject instanceof WebInterface) {
+            $controllerObject->render((array)$responseData);
+        } elseif ($controllerObject instanceof ApiInterface) {
+            $controllerObject->send();
+        }
+    }
+
+    /**
+     * @throws BaseException
+     */
+    public function registerServiceProvider()
     {
         $this->services->settings(
             (array)require_path(config_path() . 'app.php')
@@ -258,18 +239,31 @@ class Application
         }
     }
 
-    private function _terminateAllService()
+    public function terminateServiceProvider()
     {
         /**
          * Terminate all service
          */
-        foreach ($this->getAllService() as $service) {
+        foreach ($this->getAllService() as $contract => $service) {
             /**
              * @var ServiceInterface $service
              */
             if ($service instanceof ServiceInterface) {
                 $service->terminate();
             }
+
+            unset($this->services[$contract]);
         }
     }
+
+    public function catchErrors(BaseException $e)
+    {
+        if ($this->isDevelopMode()) {
+            echo 'Errors: ' . $e->getMessage();
+            echo '<pre>', $e->getTraceAsString(), '</pre>';
+        } else {
+            echo 'Errors!';
+        }
+    }
+
 }

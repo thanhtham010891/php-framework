@@ -11,15 +11,32 @@ try {
 
     /**
      * Init application
+     * Should be set instance of app for helpers
      */
-    Application::instance(
+    $app = Application::instance(
         new Application([
-            '__MAIN__' => __FILE__,
             'development' => true,
             'base_dir' => __ROOT__,
         ])
-    )->run();
+    );
+
+    /**
+     * Register service repository
+     *
+     * Let's check it at config/app.php and config/providers.php
+     */
+    $app->registerServiceProvider();
+
+    /**
+     * Listening httpRequest
+     */
+    $app->runHttp();
+
+    /**
+     * Terminate all services
+     */
+    $app->terminateServiceProvider();
 
 } catch (BaseException $e) {
-    Application::instance()->errors($e);
+    Application::instance()->catchErrors($e);
 }
