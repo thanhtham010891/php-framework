@@ -40,5 +40,13 @@ return [
         }
 
         throw new BaseException('Database driver not found!');
+    },
+
+    \System\Contract\View\ViewManagerInterface::class => function ($settings) {
+        $view = new \App\Providers\View\Manager($settings['views']);
+
+        $view->setWeb(new \App\Providers\View\Response\Web());
+
+        return $view;
     }
 ];

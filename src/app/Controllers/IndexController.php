@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Providers\Database\Model;
 use System\Contract\Database\DatabaseInterface;
 use System\Contract\Database\QueryBuilderInterface;
+use System\Contract\View\ViewManagerInterface;
 use System\Controller;
 
 class IndexController extends Controller
@@ -50,5 +51,15 @@ class IndexController extends Controller
 //
 //        echo $user->getQueryBuilder()->buildExecuteNoneQuery(), '<br>';
 
+    }
+
+    public function render()
+    {
+        /**
+         * @var ViewManagerInterface $view
+         */
+        $view = $this->services[ViewManagerInterface::class];
+
+        return $view->render('index.html');
     }
 }
