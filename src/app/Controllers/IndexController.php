@@ -39,20 +39,16 @@ class IndexController extends Controller
 
         $user->setQueryBuilder($this->services[QueryBuilderInterface::class]);
 
+        $user->getQueryBuilder()->orderBy('id')->limit(2);
+
         echo '<pre>';
 
-        print_r(
-            $user->findById(1)
-        );
-
-//        $post = new Post();
-//
-//        $post->setQueryBuilder($this->services[QueryBuilderInterface::class]);
-//
-//        echo $user->getQueryBuilder()->buildExecuteNoneQuery(), '<br>';
-
+        print_r($user->fetchAll());
     }
 
+    /**
+     * Template view
+     */
     public function render()
     {
         /**
@@ -60,6 +56,6 @@ class IndexController extends Controller
          */
         $view = $this->services[ViewManagerInterface::class];
 
-        return $view->render('index.html');
+        return $view->render('index.html.twig', ['method' => __METHOD__]);
     }
 }

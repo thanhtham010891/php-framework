@@ -6,33 +6,30 @@ use System\Application;
 
 require_once __ROOT__ . '/vendor/autoload.php';
 
-try {
-    /**
-     * Init application
-     * Should be set instance of app for helpers
-     */
-    $app = Application::instance(
-        new Application([
-            'development' => true,
-            'base_dir' => __ROOT__,
-        ])
-    );
+/**
+ * Init application
+ * Should be set instance of app for helpers
+ */
+$app = Application::instance(
+    new Application([
+        'development' => true,
+        'base_dir' => __ROOT__,
+    ])
+);
 
-    /**
-     * Register service repository
-     *
-     * Let's check it at config/app.php and config/providers.php
-     */
-    $app->registerServiceProvider();
+/**
+ * Register service repository
+ *
+ * Let's check it at config/app.php and config/providers.php
+ */
+$app->registerServiceProvider();
 
-    /**
-     * Listening httpRequest
-     */
-    $app->runHttp();
+/**
+ * Listening httpRequest
+ */
+$app->runHttp();
 
-    /**
-     * Terminate all services
-     */
-    $app->terminateServiceProvider();
-} catch (Exception $e) {
-}
+/**
+ * Terminate all services
+ */
+$app->terminateServiceProvider();

@@ -14,7 +14,7 @@ interface ModelInterface
     /**
      * @return string
      */
-    public function getTable();
+    public function getTableName();
 
     /**
      * @return string
@@ -30,7 +30,7 @@ interface ModelInterface
      * Get One item by primaryKey
      *
      * @param $id
-     * @return object|bool
+     * @return null|\object
      */
     public function findById($id);
 

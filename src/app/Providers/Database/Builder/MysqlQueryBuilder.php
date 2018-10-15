@@ -453,7 +453,7 @@ class MysqlQueryBuilder implements QueryBuilderInterface
      * @return $this|QueryBuilderInterface
      * @throws BuilderException
      */
-    public function orderBy($fields, $sort = 'DESC')
+    public function orderBy($fields, $sort = 'ASC')
     {
         $this->queryResource['order_by'][] = $this->_fieldsFormatToString([$fields]) . ' ' . trim($sort);
 

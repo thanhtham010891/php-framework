@@ -91,7 +91,7 @@ abstract class Model implements ModelInterface
 
         $this->builder->clearQueryResource();
 
-        $this->builder->table($this->getTable());
+        $this->builder->table($this->getTableName());
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class Model implements ModelInterface
     /**
      * @return string
      */
-    final public function getTable()
+    final public function getTableName()
     {
         return trim($this->identity['table'], '`');
     }
@@ -237,7 +237,7 @@ abstract class Model implements ModelInterface
 
         if (empty($fields)) {
             throw new ModelException(
-                'Table[' . $this->getTable() . '] have no columns for update or create'
+                'Table[' . $this->getTableName() . '] have no columns for update or create'
             );
         }
 

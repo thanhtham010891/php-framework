@@ -213,7 +213,7 @@ interface QueryBuilderInterface extends ServiceInterface
      * @param string $sort
      * @return $this
      */
-    public function orderBy($fields, $sort = 'DESC');
+    public function orderBy($fields, $sort = 'ASC');
 
     /**
      * @param $fields

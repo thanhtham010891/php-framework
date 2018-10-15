@@ -144,6 +144,14 @@ class Application
     }
 
     /**
+     * @return bool
+     */
+    public function isCli()
+    {
+        return (PHP_SAPI === 'cli' || defined('STDIN'));
+    }
+
+    /**
      * Application constructor.
      * @param array $settings
      */
@@ -266,14 +274,29 @@ class Application
      */
     public function catchException($e)
     {
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        if ($this->isCli()) {
+            $eof = PHP_EOL;
+        } else {
+            $eof = '<br />';
+        }
+
         /**
          * @var Exception $e
          */
         if ($this->isDevelopMode()) {
-            echo get_class($e) . ': ' . $e->getMessage();
+            echo '<pre>';
+            echo get_class($e), ': ', $e->getMessage(), $eof;
+            echo 'On file: ', $e->getFile(), '. At line: ', $e->getLine();
+
             echo '<pre>', $e->getTraceAsString(), '</pre>';
         } else {
             echo 'Error!';
         }
+
+        exit;
     }
 }
